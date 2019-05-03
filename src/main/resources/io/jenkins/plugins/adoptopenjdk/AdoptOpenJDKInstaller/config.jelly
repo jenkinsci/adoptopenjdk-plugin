@@ -1,0 +1,23 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+    <f:entry title="${%Version}" field="id">
+        <j:choose>
+            <j:set var="jdks" value="${descriptor.installableJDKs}"/>
+            <j:when test="${empty(jdks)}">
+                <!-- if JDK list is not available, fall back to text box -->
+                <f:textbox />
+            </j:when>
+            <j:otherwise>
+                <select name="_.id">
+                    <j:forEach var="family" items="${jdks}">
+                        <optgroup label="${family.name}">
+                            <j:forEach var="jdk" items="${family.releases}">
+                                <f:option value="${jdk.release_name}" selected="${jdk.matchesId(instance.id)}">${jdk.release_name}</f:option>
+                            </j:forEach>
+                        </optgroup>
+                    </j:forEach>
+                </select>
+            </j:otherwise>
+        </j:choose>
+    </f:entry>
+</j:jelly>
