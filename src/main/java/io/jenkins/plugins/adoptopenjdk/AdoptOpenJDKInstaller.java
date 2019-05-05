@@ -1,8 +1,34 @@
 package io.jenkins.plugins.adoptopenjdk;
 
+/*
+ * #%L
+ * AdoptOpenJDK installer Plugin
+ * %%
+ * Copyright (C) 2016 - 2019 Mads Mohr Christensen
+ * %%
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * #L%
+ */
+
+
 import hudson.Extension;
 import hudson.FilePath;
-import hudson.Functions;
 import hudson.model.DownloadService;
 import hudson.model.JDK;
 import hudson.model.Node;
@@ -11,16 +37,14 @@ import hudson.remoting.VirtualChannel;
 import hudson.tools.ToolInstallation;
 import hudson.tools.ToolInstaller;
 import hudson.tools.ToolInstallerDescriptor;
-import jenkins.MasterToSlaveFileCallable;
+import hudson.tools.ZipExtractionInstaller;
 import jenkins.security.MasterToSlaveCallable;
 import net.sf.json.JSONObject;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -50,7 +74,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
 
         try {
             // already installed?
-            FilePath marker = expected.child(".installedByHudson");
+            FilePath marker = expected.child(".installedByJenkins");
             if (marker.exists() && marker.readToString().equals(id)) {
                 return expected;
             }
@@ -72,16 +96,17 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
             }
             String url = binary.binary_link;
 
-            if (expected.installIfNecessaryFrom(new URL(url), log, "Unpacking " + url + " to " + expected + " on " + node.getDisplayName())) {
-                expected.child(".timestamp").delete(); // we don't use the timestamp
-                FilePath base = findPullUpDirectory(expected, p);
-                if (base != null && base != expected) {
-                    base.moveAllChildrenTo(expected);
-                }
-                expected.act(new ChmodRecAPlusX());
-                marker.write(id, null);
+            ZipExtractionInstaller zipExtractionInstaller = new ZipExtractionInstaller(null, url, null);
+            FilePath installation = zipExtractionInstaller.performInstallation(tool, node, log);
+            
+            installation.child(".timestamp").delete(); // we don't use the timestamp
+            FilePath base = findPullUpDirectory(installation, p);
+            if (base != null && base != expected) {
+                base.moveAllChildrenTo(expected);
             }
+            marker.write(id, null);
 
+            return installation;
         } catch (DetectionFailedException e) {
             log.getLogger().println("JDK installation skipped: " + e.getMessage());
         }
@@ -195,33 +220,6 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
 
             public CPU call() throws DetectionFailedException {
                 return current();
-            }
-        }
-    }
-
-    /**
-     * Sets execute permission on all files, since unzip etc. might not do this.
-     * Hackish, is there a better way?
-     */
-    static class ChmodRecAPlusX extends MasterToSlaveFileCallable<Void> {
-        private static final long serialVersionUID = 1L;
-
-        public Void invoke(File d, VirtualChannel channel) throws IOException {
-            if (!Functions.isWindows())
-                process(d);
-            return null;
-        }
-
-        private void process(File f) {
-            if (f.isFile()) {
-                f.setExecutable(true, false);
-            } else {
-                File[] kids = f.listFiles();
-                if (kids != null) {
-                    for (File kid : kids) {
-                        process(kid);
-                    }
-                }
             }
         }
     }
