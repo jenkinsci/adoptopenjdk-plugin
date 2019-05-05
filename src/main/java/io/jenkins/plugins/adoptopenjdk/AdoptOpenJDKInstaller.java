@@ -74,13 +74,13 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
 
             if (expected.installIfNecessaryFrom(new URL(url), log, "Unpacking " + url + " to " + expected + " on " + node.getDisplayName())) {
                 expected.child(".timestamp").delete(); // we don't use the timestamp
-                FilePath base = findPullUpDirectory(expected);
+                FilePath base = findPullUpDirectory(expected, p);
                 if (base != null && base != expected) {
                     base.moveAllChildrenTo(expected);
                 }
                 expected.act(new ChmodRecAPlusX());
+                marker.write(id, null);
             }
-            marker.write(id, null);
 
         } catch (DetectionFailedException e) {
             log.getLogger().println("JDK installation skipped: " + e.getMessage());
@@ -102,21 +102,29 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
      * The default implementation applies some heuristics to auto-determine if the pull up is necessary.
      * This should work for typical archive files.
      *
-     * @param root The directory that contains the extracted archive. This directory contains nothing but the
-     *             extracted archive. For example, if the user installed
-     *             http://archive.apache.org/dist/ant/binaries/jakarta-ant-1.1.zip , this directory would contain
-     *             a single directory "jakarta-ant".
+     * @param root     The directory that contains the extracted archive. This directory contains nothing but the
+     *                 extracted archive. For example, if the user installed
+     *                 http://archive.apache.org/dist/ant/binaries/jakarta-ant-1.1.zip , this directory would contain
+     *                 a single directory "jakarta-ant".
+     * @param platform The platform for which to find pull up directory for.
      * @return Return the real top directory inside {@code root} that contains the meat. In the above example,
      * {@code root.child("jakarta-ant")} should be returned. If there's no directory to pull up,
      * return null.
      */
-    protected FilePath findPullUpDirectory(FilePath root) throws IOException, InterruptedException {
+    protected FilePath findPullUpDirectory(FilePath root, Platform platform) throws IOException, InterruptedException {
         // if the directory just contains one directory and that alone, assume that's the pull up subject
         // otherwise leave it as is.
-        List<FilePath> children = root.list();
+        List<FilePath> children = root.listDirectories();
         if (children.size() != 1) return null;
-        if (children.get(0).isDirectory())
+
+        // Since the MacOS tar.gz file uses a different layout we need to handle this platform differently
+        // https://blog.adoptopenjdk.net/2018/10/macos-binary-changes
+        if (platform == Platform.MACOS) {
+            FilePath contents = children.get(0).child("Contents/Home");
+            if (contents.exists() && contents.isDirectory()) return contents;
+        } else {
             return children.get(0);
+        }
         return null;
     }
 
