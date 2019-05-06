@@ -236,7 +236,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         @Nonnull
         @Override
         public String getDisplayName() {
-            return "AdoptOpenJDK installer";
+            return Messages.AdoptOpenJDKInstaller_DescriptorImpl_DisplayName();
         }
 
         @Override
