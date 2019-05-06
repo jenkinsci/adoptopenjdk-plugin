@@ -12,10 +12,10 @@ package io.jenkins.plugins.adoptopenjdk;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,6 +27,7 @@ package io.jenkins.plugins.adoptopenjdk;
  */
 
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.model.DownloadService;
@@ -82,6 +83,9 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
             expected.mkdirs();
 
             AdoptOpenJDKFamilyList jdkFamilyList = getAdoptOpenJDKFamilyList();
+            if (jdkFamilyList.isEmpty()) {
+                throw new IOException("Argh!");
+            }
             AdoptOpenJDKRelease release = jdkFamilyList.getRelease(id);
             if (release == null) {
                 throw new IOException("Argh!");
@@ -98,7 +102,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
 
             ZipExtractionInstaller zipExtractionInstaller = new ZipExtractionInstaller(null, url, null);
             FilePath installation = zipExtractionInstaller.performInstallation(tool, node, log);
-            
+
             installation.child(".timestamp").delete(); // we don't use the timestamp
             FilePath base = findPullUpDirectory(installation, p);
             if (base != null && base != expected) {
@@ -133,8 +137,9 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
      *                 a single directory "jakarta-ant".
      * @param platform The platform for which to find pull up directory for.
      * @return Return the real top directory inside {@code root} that contains the meat. In the above example,
-     * {@code root.child("jakarta-ant")} should be returned. If there's no directory to pull up,
-     * return null.
+     * {@code root.child("jakarta-ant")} should be returned. If there's no directory to pull up, return null.
+     * @throws IOException          Signals that an I/O exception of some sort has occurred.
+     * @throws InterruptedException Thrown when a thread is interrupted.
      */
     protected FilePath findPullUpDirectory(FilePath root, Platform platform) throws IOException, InterruptedException {
         // if the directory just contains one directory and that alone, assume that's the pull up subject
@@ -264,6 +269,10 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         }
     }
 
+    @SuppressFBWarnings(value = {
+            "UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
+            "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"
+    }, justification = "Field initialized during deserialization from JSON object")
     public static final class AdoptOpenJDKFamilyList {
         public AdoptOpenJDKFamily[] data = new AdoptOpenJDKFamily[0];
         public int version;
@@ -289,11 +298,19 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         }
     }
 
+    @SuppressFBWarnings(value = {
+            "UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD",
+            "UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"
+    }, justification = "Field initialized during deserialization from JSON object")
     public static final class AdoptOpenJDKFamily {
         public String name;
         public AdoptOpenJDKRelease[] releases;
     }
 
+    @SuppressFBWarnings(value = {
+            "UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
+            "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"
+    }, justification = "Field initialized during deserialization from JSON object")
     public static final class AdoptOpenJDKRelease {
         public AdoptOpenJDKFile[] binaries;
         public String release_name;
@@ -335,6 +352,8 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         }
     }
 
+    @SuppressFBWarnings(value = "UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
+            justification = "Field initialized during deserialization from JSON object")
     public static final class AdoptOpenJDKFile {
         public String architecture;
         public String os;
