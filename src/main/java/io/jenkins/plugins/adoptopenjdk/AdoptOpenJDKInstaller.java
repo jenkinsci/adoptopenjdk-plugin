@@ -50,8 +50,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Install OpenJDK from adoptopenjdk.net
+ * Based on https://github.com/jenkinsci/jdk-tool-plugin
+ */
 public class AdoptOpenJDKInstaller extends ToolInstaller {
 
+    /**
+     * AdoptOpenJDK release id
+     */
     public final String id;
 
     @DataBoundConstructor
@@ -64,7 +71,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
     AdoptOpenJDKFamilyList getAdoptOpenJDKFamilyList() throws IOException {
         AdoptOpenJDKList list = AdoptOpenJDKList.all().get(AdoptOpenJDKList.class);
         if (list == null) {
-            throw new IOException("AdoptOpenJDKList is not registered as a Downloadable");
+            throw new IOException(Messages.AdoptOpenJDKInstaller_getAdoptOpenJDKFamilyList_NoDownloadable());
         }
         return list.toList();
     }
@@ -84,11 +91,11 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
 
             AdoptOpenJDKFamilyList jdkFamilyList = getAdoptOpenJDKFamilyList();
             if (jdkFamilyList.isEmpty()) {
-                throw new IOException("Argh!");
+                throw new IOException(Messages.AdoptOpenJDKInstaller_performInstallation_emptyJdkFamilyList());
             }
             AdoptOpenJDKRelease release = jdkFamilyList.getRelease(id);
             if (release == null) {
-                throw new IOException("Argh!");
+                throw new IOException(Messages.AdoptOpenJDKInstaller_performInstallation_releaseNotFound(id));
             }
 
             Platform p = Platform.of(node);
@@ -96,7 +103,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
 
             AdoptOpenJDKFile binary = release.getBinary(p, c);
             if (binary == null) {
-                throw new IOException("Argh!");
+                throw new IOException(Messages.AdoptOpenJDKInstaller_performInstallation_binaryNotFound(id, p.name(), c.name()));
             }
             String url = binary.binary_link;
 
@@ -112,7 +119,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
 
             return installation;
         } catch (DetectionFailedException e) {
-            log.getLogger().println("JDK installation skipped: " + e.getMessage());
+            log.getLogger().println(Messages.AdoptOpenJDKInstaller_performInstallation_JdkSkipped(e.getMessage()));
         }
 
         return expected;
@@ -158,6 +165,9 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         return null;
     }
 
+    /**
+     * Supported platform
+     */
     public enum Platform {
         LINUX("linux"), WINDOWS("windows"), MACOS("mac"), SOLARIS("solaris"), AIX("aix");
 
@@ -170,7 +180,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         public static Platform of(Node n) throws IOException, InterruptedException, DetectionFailedException {
             VirtualChannel channel = n.getChannel();
             if (channel == null) {
-                throw new IOException("Channel is null, cannot determine Platform of: " + n.getDisplayName());
+                throw new IOException(Messages.AdoptOpenJDKInstaller_Platform_nullChannel(n.getDisplayName()));
             }
             return channel.call(new Platform.GetCurrentPlatform());
         }
@@ -182,7 +192,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
             if (arch.contains("sun") || arch.contains("solaris")) return SOLARIS;
             if (arch.contains("mac")) return MACOS;
             if (arch.contains("aix")) return AIX;
-            throw new DetectionFailedException("Unknown Platform name: " + arch);
+            throw new DetectionFailedException(Messages.AdoptOpenJDKInstaller_Platform_unknownPlatform(arch));
         }
 
         public String getId() {
@@ -198,13 +208,16 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         }
     }
 
+    /**
+     * Supported CPU architecture
+     */
     public enum CPU {
         i386, amd64, Sparc, s390x, ppc64, arm;
 
         public static CPU of(Node n) throws IOException, InterruptedException, DetectionFailedException {
             VirtualChannel channel = n.getChannel();
             if (channel == null) {
-                throw new IOException("Channel is null, cannot determine CPU of: " + n.getDisplayName());
+                throw new IOException(Messages.AdoptOpenJDKInstaller_CPU_nullChannel(n.getDisplayName()));
             }
             return channel.call(new CPU.GetCurrentCPU());
         }
@@ -217,7 +230,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
             if (arch.contains("s390x")) return s390x;
             if (arch.contains("ppc64")) return ppc64;
             if (arch.contains("arm") || arch.contains("aarch64")) return arm;
-            throw new DetectionFailedException("Unknown CPU architecture: " + arch);
+            throw new DetectionFailedException(Messages.AdoptOpenJDKInstaller_CPU_unknownCpu(arch));
         }
 
         static class GetCurrentCPU extends MasterToSlaveCallable<CPU, DetectionFailedException> {
@@ -345,7 +358,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
                         if (f.architecture.equals("arm") || f.architecture.equals("aarch64")) return f;
                         break;
                     default:
-                        throw new IOException("Argh!");
+                        throw new IOException(Messages.AdoptOpenJDKInstaller_AdoptOpenJDKRelease_usupportedCpu(cpu.name()));
                 }
             }
             return null;
