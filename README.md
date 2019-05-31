@@ -5,6 +5,10 @@ Provides an installer for the JDK tool that downloads the JDK from https://adopt
 
 https://wiki.jenkins.io/display/JENKINS/AdoptOpenJDK+installer+Plugin
 
+Changelog
+---------
+[Changelog](CHANGELOG.md)
+
 Maintainers
 ===========
 
