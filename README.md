@@ -1,9 +1,10 @@
 Jenkins AdoptOpenJDK installer Plugin
 =====================================
 
-Provides an installer for the JDK tool that downloads the JDK from https://adoptopenjdk.net/
+[![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/adoptopenjdk.svg)](https://plugins.jenkins.io/adoptopenjdk)
+[![Jenkins Plugin Installs](https://img.shields.io/jenkins/plugin/i/adoptopenjdk.svg?color=blue)](https://plugins.jenkins.io/adoptopenjdk)
 
-https://wiki.jenkins.io/display/JENKINS/AdoptOpenJDK+installer+Plugin
+Provides an installer for the JDK tool that downloads the JDK from https://adoptopenjdk.net/
 
 Configure plugin via Groovy script
 ---------
