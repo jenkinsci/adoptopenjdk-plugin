@@ -5,6 +5,34 @@ Provides an installer for the JDK tool that downloads the JDK from https://adopt
 
 https://wiki.jenkins.io/display/JENKINS/AdoptOpenJDK+installer+Plugin
 
+Configure plugin via Groovy script
+---------
+Either automatically upon [Jenkins post-initialization](https://wiki.jenkins.io/display/JENKINS/Post-initialization+script) or through [Jenkins script console](https://wiki.jenkins.io/display/JENKINS/Jenkins+Script+Console), example:
+
+```groovy
+#!/usr/bin/env groovy
+import hudson.model.JDK
+import hudson.tools.InstallSourceProperty
+import io.jenkins.plugins.adoptopenjdk.AdoptOpenJDKInstaller
+import jenkins.model.Jenkins
+
+final versions = [
+        'jdk8': 'jdk8u222-b10'
+]
+
+Jenkins.instance.getDescriptor(hudson.model.JDK).with {
+    installations = versions.collect {
+        new JDK(it.key, '', [
+                new InstallSourceProperty([
+                        new AdoptOpenJDKInstaller(it.value)
+                ])
+        ])
+    } as JDK[]
+
+}
+```
+
+
 Changelog
 ---------
 [Changelog](CHANGELOG.md)
