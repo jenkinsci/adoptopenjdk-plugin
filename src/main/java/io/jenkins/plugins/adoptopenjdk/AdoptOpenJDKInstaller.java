@@ -64,7 +64,7 @@ import java.util.Locale;
  */
 public class AdoptOpenJDKInstaller extends ToolInstaller {
 
-    private static final boolean DISABLE_CACHE = Boolean.getBoolean( AdoptOpenJDKInstaller.class + ".cache.disable" );
+    private static boolean DISABLE_CACHE = Boolean.getBoolean( AdoptOpenJDKInstaller.class + ".cache.disable" );
 
     /**
      * AdoptOpenJDK release id
