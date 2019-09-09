@@ -6,6 +6,19 @@ Jenkins AdoptOpenJDK installer Plugin
 
 Provides an installer for the JDK tool that downloads the JDK from https://adoptopenjdk.net/
 
+Usage recommendations
+---------------------
+
+We want to warn that this plugin is **NOT** a good practice for production environments. As it relies on the
+AdoptOpenJDK's website to do the job, it's highly likely to stop working. It could happen because AdoptOpenJDK's website
+change or even if AdoptOpenJDK bans our downloads due to excessive bandwidth or whatever other reason).
+Currently AdoptOpenJDK is using GitHub for hosting release archives and GitHub could also stop working due to similar
+reasons.
+
+The recommended approach is to download the JDK distribution using other installers, for example downloading it from a
+well known URL (preferably hosted on your own network) with _ZIP Tool Installer_, having it pre-installed in agent
+docker images, or executing a script to do the job.
+
 Configure plugin via Groovy script
 ---------
 Either automatically upon [Jenkins post-initialization](https://wiki.jenkins.io/display/JENKINS/Post-initialization+script) or through [Jenkins script console](https://wiki.jenkins.io/display/JENKINS/Jenkins+Script+Console), example:
