@@ -195,10 +195,8 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         if (platform == Platform.MACOS) {
             FilePath contents = children.get(0).child("Contents/Home");
             if (contents.exists() && contents.isDirectory()) return contents;
-        } else {
-            return children.get(0);
         }
-        return null;
+        return children.get(0);
     }
 
     /**
