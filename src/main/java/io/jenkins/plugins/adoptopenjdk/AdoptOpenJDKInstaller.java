@@ -42,14 +42,12 @@ import hudson.tools.ZipExtractionInstaller;
 import jenkins.model.Jenkins;
 import jenkins.security.MasterToSlaveCallable;
 import net.sf.json.JSONObject;
-import org.apache.commons.io.IOUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -117,19 +115,19 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
             }
             File cache = getLocalCacheFile(p, c);
             if (!DISABLE_CACHE && cache.exists() && cache.length()>1*1024*1024) { // if the file is too small, don't trust it
-                // the zip contains already the directory so we unzip to parent directory
-                expected.getParent().installIfNecessaryFrom(cache.toURI().toURL(), log,
+
+                // Use the same detection of pull up directory and eventual moving of children as for the normal
+                // installation via `ZipExtractionInstaller`
+                expected.installIfNecessaryFrom(cache.toURI().toURL(), log,
                                                             Messages.AdoptOpenJDKInstaller_performInstallation_path(expected));
-                expected.getParent().child( ".timestamp" ).delete();
+                expected.child( ".timestamp" ).delete();
+                pullUpIfNecessary(expected, p);
             } else {
                 String url = binary.binary_link;
                 ZipExtractionInstaller zipExtractionInstaller = new ZipExtractionInstaller(null, url, null);
                 FilePath installation = zipExtractionInstaller.performInstallation(tool, node, log);
                 installation.child(".timestamp").delete(); // we don't use the timestamp
-                FilePath base = findPullUpDirectory(installation, p);
-                if (base != null && base != expected) {
-                    base.moveAllChildrenTo(expected);
-                }
+                pullUpIfNecessary(installation, p);
                 marker.write(id, null);
                 if(!DISABLE_CACHE) {
                     // update the local cache on master
@@ -154,6 +152,13 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         }
 
         return expected;
+    }
+
+    private void pullUpIfNecessary(FilePath expected, Platform p) throws IOException, InterruptedException {
+        FilePath base = findPullUpDirectory(expected, p);
+        if (base != null && base != expected) {
+            base.moveAllChildrenTo(expected);
+        }
     }
 
     private File getLocalCacheFile( Platform platform, CPU cpu) {
