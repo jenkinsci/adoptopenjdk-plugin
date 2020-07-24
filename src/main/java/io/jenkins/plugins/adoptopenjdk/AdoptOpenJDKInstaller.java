@@ -42,14 +42,12 @@ import hudson.tools.ZipExtractionInstaller;
 import jenkins.model.Jenkins;
 import jenkins.security.MasterToSlaveCallable;
 import net.sf.json.JSONObject;
-import org.apache.commons.io.IOUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -64,7 +62,7 @@ import java.util.Locale;
  */
 public class AdoptOpenJDKInstaller extends ToolInstaller {
 
-    private static boolean DISABLE_CACHE = Boolean.getBoolean( AdoptOpenJDKInstaller.class + ".cache.disable" );
+    private static boolean DISABLE_CACHE = Boolean.getBoolean(AdoptOpenJDKInstaller.class + ".cache.disable");
 
     /**
      * AdoptOpenJDK release id
@@ -116,11 +114,11 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
                 throw new IOException(Messages.AdoptOpenJDKInstaller_performInstallation_binaryNotFound(id, p.name(), c.name()));
             }
             File cache = getLocalCacheFile(p, c);
-            if (!DISABLE_CACHE && cache.exists() && cache.length()>1*1024*1024) { // if the file is too small, don't trust it
+            if (!DISABLE_CACHE && cache.exists() && cache.length() > 1 * 1024 * 1024) { // if the file is too small, don't trust it
                 // the zip contains already the directory so we unzip to parent directory
                 expected.getParent().installIfNecessaryFrom(cache.toURI().toURL(), log,
-                                                            Messages.AdoptOpenJDKInstaller_performInstallation_path(expected));
-                expected.getParent().child( ".timestamp" ).delete();
+                        Messages.AdoptOpenJDKInstaller_performInstallation_path(expected));
+                expected.getParent().child(".timestamp").delete();
             } else {
                 String url = binary.binary_link;
                 ZipExtractionInstaller zipExtractionInstaller = new ZipExtractionInstaller(null, url, null);
@@ -131,10 +129,10 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
                     base.moveAllChildrenTo(expected);
                 }
                 marker.write(id, null);
-                if(!DISABLE_CACHE) {
+                if (!DISABLE_CACHE) {
                     // update the local cache on master
                     // download to a temporary file and rename it in to handle concurrency and failure correctly,
-                    Path tmp = new File( cache.getPath()+".tmp").toPath();
+                    Path tmp = new File(cache.getPath() + ".tmp").toPath();
                     try {
                         Path tmpParent = tmp.getParent();
                         if (tmpParent != null) {
@@ -156,9 +154,9 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         return expected;
     }
 
-    private File getLocalCacheFile( Platform platform, CPU cpu) {
+    private File getLocalCacheFile(Platform platform, CPU cpu) {
         // we force .zip file
-        return new File(Jenkins.get().getRootDir(), "caches/adoptopenjdk/"+platform+"/"+cpu+"/"+id+".zip");
+        return new File(Jenkins.get().getRootDir(), "caches/adoptopenjdk/" + platform + "/" + cpu + "/" + id + ".zip");
     }
 
     /**
