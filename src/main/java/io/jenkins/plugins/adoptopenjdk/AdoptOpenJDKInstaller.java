@@ -42,12 +42,14 @@ import hudson.tools.ZipExtractionInstaller;
 import jenkins.model.Jenkins;
 import jenkins.security.MasterToSlaveCallable;
 import net.sf.json.JSONObject;
+import org.apache.commons.io.input.CountingInputStream;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,6 +57,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Install OpenJDK from adoptopenjdk.net
@@ -111,14 +114,26 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
 
             AdoptOpenJDKFile binary = release.getBinary(p, c);
             if (binary == null) {
-                throw new IOException(Messages.AdoptOpenJDKInstaller_performInstallation_binaryNotFound(id, p.name(), c.name()));
+                throw new IOException(Messages.AdoptOpenJDKInstaller_performInstallation_binaryNotFound(
+                        id, p.name(), c.name())
+                );
             }
             File cache = getLocalCacheFile(p, c);
             if (!DISABLE_CACHE && cache.exists() && cache.length() > 1 * 1024 * 1024) { // if the file is too small, don't trust it
-                // the zip contains already the directory so we unzip to parent directory
-                expected.getParent().installIfNecessaryFrom(cache.toURI().toURL(), log,
-                        Messages.AdoptOpenJDKInstaller_performInstallation_path(expected));
-                expected.getParent().child(".timestamp").delete();
+                try (InputStream in = cache.toURI().toURL().openStream()) {
+                    CountingInputStream cis = new CountingInputStream(in);
+                    try {
+                        log.getLogger().println(
+                                Messages.AdoptOpenJDKInstaller_performInstallation_fromCache(cache, expected, node.getDisplayName())
+                        );
+                        // the zip contains already the directory so we unzip to parent directory
+                        Objects.requireNonNull(expected.getParent()).unzipFrom(cis);
+                    } catch (IOException e) {
+                        throw new IOException(Messages.AdoptOpenJDKInstaller_performInstallation_failedToUnpack(
+                                cache.toURI().toURL(), cis.getByteCount()), e
+                        );
+                    }
+                }
             } else {
                 String url = binary.binary_link;
                 ZipExtractionInstaller zipExtractionInstaller = new ZipExtractionInstaller(null, url, null);
