@@ -119,7 +119,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
                 );
             }
             File cache = getLocalCacheFile(p, c);
-            if (!DISABLE_CACHE && cache.exists() && cache.length() > 1 * 1024 * 1024) { // if the file is too small, don't trust it
+            if (!DISABLE_CACHE && cache.exists()) {
                 try (InputStream in = cache.toURI().toURL().openStream()) {
                     CountingInputStream cis = new CountingInputStream(in);
                     try {
