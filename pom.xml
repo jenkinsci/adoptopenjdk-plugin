@@ -41,7 +41,7 @@
         <java.level>8</java.level>
         <jenkins.version>2.164.3</jenkins.version>
         <wiremock.version>2.27.1</wiremock.version>
-        <jetty.version>9.4.38.v20210224</jetty.version>
+        <jetty.version>11.0.2</jetty.version>
     </properties>
     <name>AdoptOpenJDK installer Plugin</name>
     <description>Provides an installer for the JDK tool that downloads the JDK from https://adoptopenjdk.net/</description>
