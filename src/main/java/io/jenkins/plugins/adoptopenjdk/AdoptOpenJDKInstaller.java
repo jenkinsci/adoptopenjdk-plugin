@@ -127,7 +127,12 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
                                 Messages.AdoptOpenJDKInstaller_performInstallation_fromCache(cache, expected, node.getDisplayName())
                         );
                         // the zip contains already the directory so we unzip to parent directory
-                        Objects.requireNonNull(expected.getParent()).unzipFrom(cis);
+                        FilePath parent = expected.getParent();
+                        if (parent != null) {
+                            parent.unzipFrom(cis);
+                        } else {
+                            throw new NullPointerException("Parent directory of " + expected + " is null");
+                        }
                     } catch (IOException e) {
                         throw new IOException(Messages.AdoptOpenJDKInstaller_performInstallation_failedToUnpack(
                                 cache.toURI().toURL(), cis.getByteCount()), e
