@@ -30,7 +30,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>4.1</version>
+        <version>4.40</version>
         <relativePath />
     </parent>
     <groupId>io.jenkins.plugins</groupId>
@@ -38,10 +38,8 @@
     <version>1.5-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
-        <java.level>8</java.level>
-        <jenkins.version>2.164.3</jenkins.version>
-        <wiremock.version>2.27.1</wiremock.version>
-        <jetty.version>9.4.43.v20210629</jetty.version>
+        <jenkins.version>2.303.1</jenkins.version>
+        <wiremock.version>2.33.1</wiremock.version>
     </properties>
     <name>AdoptOpenJDK installer Plugin</name>
     <description>Provides an installer for the JDK tool that downloads the JDK from https://adoptopenjdk.net/</description>
@@ -56,51 +54,38 @@
         <dependencies>
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.164.x</artifactId>
-                <version>9</version>
+                <artifactId>bom-2.303.x</artifactId>
+                <version>1280.vd669827e38cd</version>
                 <scope>import</scope>
                 <type>pom</type>
-            </dependency>
-            <!-- required by wiremock -->
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>3.9</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>30.0-jre</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
-                <version>${jetty.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-xml</artifactId>
-                <version>${jetty.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-webapp</artifactId>
-                <version>${jetty.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-servlet</artifactId>
-                <version>${jetty.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-util</artifactId>
-                <version>${jetty.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-security</artifactId>
-                <version>${jetty.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -111,6 +96,12 @@
             <artifactId>wiremock-jre8</artifactId>
             <version>${wiremock.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
