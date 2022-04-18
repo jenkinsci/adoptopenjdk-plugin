@@ -46,7 +46,7 @@ import org.apache.commons.io.input.CountingInputStream;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,7 +78,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         this.id = id;
     }
 
-    private static @Nonnull
+    private static @NonNull
     AdoptOpenJDKFamilyList getAdoptOpenJDKFamilyList() throws IOException {
         AdoptOpenJDKList list = AdoptOpenJDKList.all().get(AdoptOpenJDKList.class);
         if (list == null) {
@@ -298,7 +298,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
     @Symbol("adoptOpenJdkInstaller")
     public static class DescriptorImpl extends ToolInstallerDescriptor<AdoptOpenJDKInstaller> {
 
-        @Nonnull
+        @NonNull
         @Override
         public String getDisplayName() {
             return Messages.AdoptOpenJDKInstaller_DescriptorImpl_DisplayName();
