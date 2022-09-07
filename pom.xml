@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   #%L
-  AdoptOpenJDK installer Plugin
+  Eclipse Temurin installer Plugin
   %%
   Copyright (C) 2016 - 2019 Mads Mohr Christensen
   %%
@@ -30,21 +30,21 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>4.1</version>
+        <version>4.47</version>
         <relativePath />
     </parent>
     <groupId>io.jenkins.plugins</groupId>
     <artifactId>adoptopenjdk</artifactId>
-    <version>1.5-SNAPSHOT</version>
+    <version>${revision}${changelist}</version>
     <packaging>hpi</packaging>
     <properties>
-        <java.level>8</java.level>
-        <jenkins.version>2.164.3</jenkins.version>
-        <wiremock.version>2.27.1</wiremock.version>
-        <jetty.version>9.4.43.v20210629</jetty.version>
+        <revision>1.5</revision>
+        <changelist>-SNAPSHOT</changelist>
+        <jenkins.version>2.289.1</jenkins.version>
+        <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
     </properties>
-    <name>AdoptOpenJDK installer Plugin</name>
-    <description>Provides an installer for the JDK tool that downloads the JDK from https://adoptopenjdk.net/</description>
+    <name>Eclipse Temurin installer Plugin</name>
+    <description>Provides an installer for the JDK tool that downloads the JDK from https://adoptium.net/</description>
     <licenses>
         <license>
             <name>MIT License</name>
@@ -56,51 +56,10 @@
         <dependencies>
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.164.x</artifactId>
-                <version>9</version>
+                <artifactId>bom-2.289.x</artifactId>
+                <version>1500.ve4d05cd32975</version>
                 <scope>import</scope>
                 <type>pom</type>
-            </dependency>
-            <!-- required by wiremock -->
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>3.9</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>30.0-jre</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-server</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-xml</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-webapp</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-servlet</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-util</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-security</artifactId>
-                <version>${jetty.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -108,8 +67,8 @@
     <dependencies>
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
-            <artifactId>wiremock-jre8</artifactId>
-            <version>${wiremock.version}</version>
+            <artifactId>wiremock-jre8-standalone</artifactId>
+            <version>2.33.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -122,12 +81,12 @@
         </developer>
     </developers>
 
-    <url>https://github.com/jenkinsci/adoptopenjdk-plugin</url>
+    <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
     <scm>
-        <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
-        <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
-        <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
-        <tag>HEAD</tag>
+        <connection>scm:git:https://github.com/${gitHubRepo}.git</connection>
+        <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
+        <url>https://github.com/${gitHubRepo}</url>
+        <tag>${scmTag}</tag>
     </scm>
 
     <repositories>

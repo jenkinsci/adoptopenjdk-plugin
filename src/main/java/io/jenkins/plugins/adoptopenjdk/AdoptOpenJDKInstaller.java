@@ -2,7 +2,7 @@ package io.jenkins.plugins.adoptopenjdk;
 
 /*
  * #%L
- * AdoptOpenJDK installer Plugin
+ * Eclipse Temurin installer Plugin
  * %%
  * Copyright (C) 2016 - 2019 Mads Mohr Christensen
  * %%
@@ -46,7 +46,7 @@ import org.apache.commons.io.input.CountingInputStream;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,7 +60,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * Install OpenJDK from adoptopenjdk.net
+ * Install OpenJDK from adoptium.net
  * Based on https://github.com/jenkinsci/jdk-tool-plugin
  */
 public class AdoptOpenJDKInstaller extends ToolInstaller {
@@ -68,7 +68,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
     private static boolean DISABLE_CACHE = Boolean.getBoolean(AdoptOpenJDKInstaller.class.getName() + ".cache.disable");
 
     /**
-     * AdoptOpenJDK release id
+     * Eclipse Temurin release id
      */
     public final String id;
 
@@ -78,8 +78,8 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         this.id = id;
     }
 
-    private static @Nonnull
-    AdoptOpenJDKFamilyList getAdoptOpenJDKFamilyList() throws IOException {
+    @NonNull
+    private static AdoptOpenJDKFamilyList getAdoptOpenJDKFamilyList() throws IOException {
         AdoptOpenJDKList list = AdoptOpenJDKList.all().get(AdoptOpenJDKList.class);
         if (list == null) {
             throw new IOException(Messages.AdoptOpenJDKInstaller_getAdoptOpenJDKFamilyList_NoDownloadable());
@@ -88,6 +88,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
     }
 
     @Override
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "TODO needs triage")
     public FilePath performInstallation(ToolInstallation tool, Node node, TaskListener log) throws IOException, InterruptedException {
         FilePath expected = preferredLocation(tool, node);
 
@@ -293,7 +294,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
     @Symbol("adoptOpenJdkInstaller")
     public static class DescriptorImpl extends ToolInstallerDescriptor<AdoptOpenJDKInstaller> {
 
-        @Nonnull
+        @NonNull
         @Override
         public String getDisplayName() {
             return Messages.AdoptOpenJDKInstaller_DescriptorImpl_DisplayName();

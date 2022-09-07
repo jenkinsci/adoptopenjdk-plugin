@@ -1,6 +1,6 @@
 <!--
   #%L
-  AdoptOpenJDK installer Plugin
+  Eclipse Temurin installer Plugin
   %%
   Copyright (C) 2016 - 2019 Mads Mohr Christensen
   %%
@@ -25,5 +25,5 @@
   -->
 <?jelly escape-by-default='true'?>
 <div>
-    Provides an installer for the JDK tool that downloads the JDK from https://adoptopenjdk.net
+    Provides an installer for the JDK tool that downloads the JDK from https://adoptium.net
 </div>
