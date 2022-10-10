@@ -2,7 +2,7 @@ package io.jenkins.plugins.adoptopenjdk;
 
 /*
  * #%L
- * AdoptOpenJDK installer Plugin
+ * Eclipse Temurin installer Plugin
  * %%
  * Copyright (C) 2016 - 2019 Mads Mohr Christensen
  * %%
@@ -68,8 +68,8 @@ public class AdoptOpenJDKInstallerTest {
         j.jenkins.addNode(slave);
 
         // configure jdk
-        installer = new AdoptOpenJDKInstaller("jdk8u172-b11");
-        testJdk = new JDK("jdk8u172", null, Collections.singletonList(
+        installer = new AdoptOpenJDKInstaller("jdk8u345-b01");
+        testJdk = new JDK("jdk8u345", null, Collections.singletonList(
                 new InstallSourceProperty(Collections.<ToolInstaller>singletonList(installer)))
         );
         j.jenkins.getJDKs().add(testJdk);
@@ -79,9 +79,9 @@ public class AdoptOpenJDKInstallerTest {
         String releases = IOUtils.toString(getClass().getResourceAsStream("/" + AdoptOpenJDKInstaller.class.getName()), StandardCharsets.UTF_8);
         jdkDl.getDataFile().write(releases.replaceAll("https://github.com", wireMockRule.baseUrl()));
 
-        setupStub(".*Linux.*", "Linux.tar.gz");
-        setupStub(".*Win.*", "Win.zip");
-        setupStub(".*Mac.*", "Mac.tar.gz");
+        setupStub(".*linux.*", "Linux.tar.gz");
+        setupStub(".*win.*", "Win.zip");
+        setupStub(".*mac.*", "Mac.tar.gz");
     }
 
     @Test
