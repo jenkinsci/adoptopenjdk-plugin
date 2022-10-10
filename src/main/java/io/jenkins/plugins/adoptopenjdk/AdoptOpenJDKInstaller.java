@@ -59,8 +59,8 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Install OpenJDK from adoptium.net
- * Based on https://github.com/jenkinsci/jdk-tool-plugin
+ * Install OpenJDK from <a href="https://adoptium.net">Adoptium</a>
+ * Based on <a href="https://github.com/jenkinsci/jdk-tool-plugin">Oracle Java SE Development Kit Installer</a>
  */
 public class AdoptOpenJDKInstaller extends ToolInstaller {
 
@@ -194,7 +194,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
      *
      * @param root     The directory that contains the extracted archive. This directory contains nothing but the
      *                 extracted archive. For example, if the user installed
-     *                 http://archive.apache.org/dist/ant/binaries/jakarta-ant-1.1.zip , this directory would contain
+     *                 <a href="https://archive.apache.org/dist/ant/binaries/jakarta-ant-1.1.zip">jakarta-ant-1.1.zip</a>, this directory would contain
      *                 a single directory "jakarta-ant".
      * @param platform The platform for which to find pull up directory for.
      * @return Return the real top directory inside {@code root} that contains the meat. In the above example,
