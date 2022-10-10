@@ -1644,6 +1644,77 @@
                     "release_name": "jdk-18+36"
                 }
             ]
+        },
+        {
+            "name": "OpenJDK 19 - HotSpot",
+            "releases": [
+                {
+                    "binaries": [
+                        {
+                            "architecture": "x64",
+                            "binary_link": "https://github.com/adoptium/temurin19-binaries/releases/download/jdk-19%2B36/OpenJDK19U-jdk_x64_linux_hotspot_19_36.tar.gz",
+                            "openjdk_impl": "hotspot",
+                            "os": "linux"
+                        },
+                        {
+                            "architecture": "x64",
+                            "binary_link": "https://github.com/adoptium/temurin19-binaries/releases/download/jdk-19%2B36/OpenJDK19U-jdk_x64_windows_hotspot_19_36.zip",
+                            "openjdk_impl": "hotspot",
+                            "os": "windows"
+                        },
+                        {
+                            "architecture": "aarch64",
+                            "binary_link": "https://github.com/adoptium/temurin19-binaries/releases/download/jdk-19%2B36/OpenJDK19U-jdk_aarch64_linux_hotspot_19_36.tar.gz",
+                            "openjdk_impl": "hotspot",
+                            "os": "linux"
+                        },
+                        {
+                            "architecture": "arm",
+                            "binary_link": "https://github.com/adoptium/temurin19-binaries/releases/download/jdk-19%2B36/OpenJDK19U-jdk_arm_linux_hotspot_19_36.tar.gz",
+                            "openjdk_impl": "hotspot",
+                            "os": "linux"
+                        },
+                        {
+                            "architecture": "x64",
+                            "binary_link": "https://github.com/adoptium/temurin19-binaries/releases/download/jdk-19%2B36/OpenJDK19U-jdk_x64_mac_hotspot_19_36.tar.gz",
+                            "openjdk_impl": "hotspot",
+                            "os": "mac"
+                        },
+                        {
+                            "architecture": "aarch64",
+                            "binary_link": "https://github.com/adoptium/temurin19-binaries/releases/download/jdk-19%2B36/OpenJDK19U-jdk_aarch64_mac_hotspot_19_36.tar.gz",
+                            "openjdk_impl": "hotspot",
+                            "os": "mac"
+                        },
+                        {
+                            "architecture": "x64",
+                            "binary_link": "https://github.com/adoptium/temurin19-binaries/releases/download/jdk-19%2B36/OpenJDK19U-jdk_x64_alpine-linux_hotspot_19_36.tar.gz",
+                            "openjdk_impl": "hotspot",
+                            "os": "alpine-linux"
+                        },
+                        {
+                            "architecture": "ppc64le",
+                            "binary_link": "https://github.com/adoptium/temurin19-binaries/releases/download/jdk-19%2B36/OpenJDK19U-jdk_ppc64le_linux_hotspot_19_36.tar.gz",
+                            "openjdk_impl": "hotspot",
+                            "os": "linux"
+                        },
+                        {
+                            "architecture": "s390x",
+                            "binary_link": "https://github.com/adoptium/temurin19-binaries/releases/download/jdk-19%2B36/OpenJDK19U-jdk_s390x_linux_hotspot_19_36.tar.gz",
+                            "openjdk_impl": "hotspot",
+                            "os": "linux"
+                        },
+                        {
+                            "architecture": "x32",
+                            "binary_link": "https://github.com/adoptium/temurin19-binaries/releases/download/jdk-19%2B36/OpenJDK19U-jdk_x86-32_windows_hotspot_19_36.zip",
+                            "openjdk_impl": "hotspot",
+                            "os": "windows"
+                        }
+                    ],
+                    "openjdk_impl": "hotspot",
+                    "release_name": "jdk-19+36"
+                }
+            ]
         }
     ],
     "version": 2
