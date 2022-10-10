@@ -1,18 +1,18 @@
-Jenkins AdoptOpenJDK installer Plugin
+Jenkins Eclipse Temurin installer Plugin
 =====================================
 
 [![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/adoptopenjdk.svg)](https://plugins.jenkins.io/adoptopenjdk)
 [![Jenkins Plugin Installs](https://img.shields.io/jenkins/plugin/i/adoptopenjdk.svg?color=blue)](https://plugins.jenkins.io/adoptopenjdk)
 
-Provides an installer for the JDK tool that downloads the JDK from https://adoptopenjdk.net/
+Provides an installer for the JDK tool that downloads the JDK from https://adoptium.net/
 
 Usage recommendations
 ---------------------
 
-We want to warn that this plugin is **NOT** a good practice for production environments. As it relies on the
-AdoptOpenJDK's website to do the job, it's highly likely to stop working. It could happen because AdoptOpenJDK's website
-change or even if AdoptOpenJDK bans our downloads due to excessive bandwidth or whatever other reason).
-Currently AdoptOpenJDK is using GitHub for hosting release archives and GitHub could also stop working due to similar
+We want to warn that this plugin is **NOT** a good practice for production environments. As it relies on
+Adoptium's website to do the job, it's highly likely to stop working. It could happen because Adoptium's website
+changes or even if Adoptium bans our downloads due to excessive bandwidth usage or some other reason).
+Currently Adoptium is using GitHub for hosting release archives and GitHub could also stop working due to similar
 reasons.
 
 The recommended approach is to download the JDK distribution using other installers, for example downloading it from a
