@@ -57,7 +57,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 /**
  * Install OpenJDK from adoptium.net
