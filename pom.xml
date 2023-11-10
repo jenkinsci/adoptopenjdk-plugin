@@ -44,7 +44,6 @@
         <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
     </properties>
     <name>Eclipse Temurin installer Plugin</name>
-    <description>Provides an installer for the JDK tool that downloads the JDK from https://adoptium.net/</description>
     <licenses>
         <license>
             <name>MIT License</name>

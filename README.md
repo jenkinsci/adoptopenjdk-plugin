@@ -1,27 +1,106 @@
-Jenkins Eclipse Temurin installer Plugin
-=====================================
+# Eclipse Temurin:tm: JDK installer plugin
 
-[![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/adoptopenjdk.svg)](https://plugins.jenkins.io/adoptopenjdk)
-[![Jenkins Plugin Installs](https://img.shields.io/jenkins/plugin/i/adoptopenjdk.svg?color=blue)](https://plugins.jenkins.io/adoptopenjdk)
+Provides an installer for the JDK tool that downloads the Eclipse Temurin:tm: build based upon OpenJDK from the [Adoptium Working Group](https://adoptium.net/).
 
-Provides an installer for the JDK tool that downloads the JDK from https://adoptium.net/
-
-Usage recommendations
----------------------
+## Usage recommendations
 
 We want to warn that this plugin is **NOT** a good practice for production environments. As it relies on
 Adoptium's website to do the job, it's highly likely to stop working. It could happen because Adoptium's website
-changes or even if Adoptium bans our downloads due to excessive bandwidth usage or some other reason).
+changes or even if Adoptium bans our downloads due to excessive bandwidth usage or some other reason.
 Currently Adoptium is using GitHub for hosting release archives and GitHub could also stop working due to similar
 reasons.
 
-The recommended approach is to download the JDK distribution using other installers, for example downloading it from a
+The recommended and preferred approach is to download the JDK distribution using other installers, for example downloading it from a
 well known URL (preferably hosted on your own network) with _ZIP Tool Installer_, having it pre-installed in agent
 docker images, or executing a script to do the job.
 
-Configure plugin via Groovy script
----------
-Either automatically upon [Jenkins post-initialization](https://wiki.jenkins.io/display/JENKINS/Post-initialization+script) or through [Jenkins script console](https://wiki.jenkins.io/display/JENKINS/Jenkins+Script+Console), example:
+## Configure plugin with [Configuration as Code](https://plugins.jenkins.io/configuration-as-code/)
+
+The [configuration as code plugin](https://plugins.jenkins.io/configuration-as-code/) allows administrators to automate Jenkins configuration.
+The sample configuration below defines tool installers based on agent labels, and uses
+
+* locally hosted Java installers for Linux and Windows agents (assuming local domain in `example.com`)
+* locally installed Java on agents with the `Alpine` label
+* locally installed Java on agents with the `cloud` label
+* locally installed Java on agents with the `freebsd` label
+
+If none of those installers are selected, then as a fallback, the agent will download the specified Java version from the Eclipse Temurin:tm: project.
+
+The example shows the preference to first use locally available zip files and local installations of the JDK.
+The JDK will be downloaded from the Eclipse Temurin:tm: project only in cases where the local installation is not available or does not apply.
+
+```yaml
+tool:
+  jdk:
+    installations:
+    - name: "jdk11"
+      properties:
+      - installSource:
+          installers:
+          - zip:
+              label: "linux && amd64 && !Alpine && !cloud"
+              subdir: "jdk-11.0.21+9"
+              url: "https://example.com/jdk/11/OpenJDK11U-jdk_x64_linux_hotspot_11.0.21_9.tar.gz"
+          - zip:
+              label: "windows && amd64"
+              subdir: "jdk-11.0.21+9"
+              url: "https://example.com/jdk/11/OpenJDK11U-jdk_x64_windows_hotspot_11.0.21_9.zip"
+          - command:
+              command: "true"
+              label: "cloud"
+              toolHome: "/home/jenkins/tools/jdk-11.0.21+9"
+          - command:
+              command: "true"
+              label: "freebsd"
+              toolHome: "/usr/local/openjdk11"
+          - adoptOpenJdkInstaller:
+              id: "jdk-11.0.21+9"
+    - name: "jdk17"
+      properties:
+      - installSource:
+          installers:
+          - zip:
+              label: "linux && amd64 && !Alpine && !cloud"
+              subdir: "jdk-17.0.9+9"
+              url: "https://example.com/jdk/17/OpenJDK17U-jdk_x64_linux_hotspot_17.0.9_9.tar.gz"
+          - zip:
+              label: "windows && amd64"
+              subdir: "jdk-17.0.9+9"
+              url: "https://example.com/jdk/17/OpenJDK17U-jdk_x64_windows_hotspot_17.0.9_9.zip"
+          - command:
+              command: "true"
+              label: "cloud"
+              toolHome: "/home/jenkins/tools/jdk-17.0.9+9"
+          - command:
+              command: "true"
+              label: "freebsd"
+              toolHome: "/usr/local/openjdk17"
+          - adoptOpenJdkInstaller:
+              id: "jdk-17.0.9+9"
+    - name: "jdk21"
+      properties:
+      - installSource:
+          installers:
+          - zip:
+              label: "linux && amd64 && !Alpine && !cloud"
+              subdir: "jdk-21.0.1+12"
+              url: "https://example.com/jdk/21/OpenJDK21U-jdk_x64_linux_hotspot_21.0.1_12.tar.gz"
+          - zip:
+              label: "windows && amd64"
+              subdir: "jdk-21.0.1+12"
+              url: "https://example.com/jdk/21/OpenJDK21U-jdk_x64_windows_hotspot_21.0.1_12.zip"
+          - command:
+              command: "true"
+              label: "cloud"
+              toolHome: "/home/jenkins/tools/jdk-21.0.1+12"
+          - adoptOpenJdkInstaller:
+              id: "jdk-21.0.1+12"
+```
+
+## Configure plugin via Groovy script
+
+Either automatically upon [Jenkins post-initialization](https://www.jenkins.io/doc/book/managing/groovy-hook-scripts/) or through
+[Jenkins script console](https://www.jenkins.io/doc/book/managing/script-console/), example:
 
 ```groovy
 #!/usr/bin/env groovy
@@ -31,7 +110,10 @@ import io.jenkins.plugins.adoptopenjdk.AdoptOpenJDKInstaller
 import jenkins.model.Jenkins
 
 final versions = [
-        'jdk8': 'jdk8u222-b10'
+        'jdk8' : 'jdk8u392-b08',
+        'jdk11': 'jdk-11.0.21+9',
+        'jdk17': 'jdk-17.0.9+9',
+        'jdk21': 'jdk-21.0.1+12',
 ]
 
 Jenkins.instance.getDescriptor(hudson.model.JDK).with {
@@ -46,38 +128,6 @@ Jenkins.instance.getDescriptor(hudson.model.JDK).with {
 }
 ```
 
+## Changelog
 
-Changelog
----------
-[Changelog](CHANGELOG.md)
-
-Maintainers
-===========
-
-* Mads Mohr Christensen
-
-License
--------
-
-	(The MIT License)
-
-	Copyright (C) 2016 - 2019 Mads Mohr Christensen
-
-	Permission is hereby granted, free of charge, to any person obtaining
-	a copy of this software and associated documentation files (the
-	'Software'), to deal in the Software without restriction, including
-	without limitation the rights to use, copy, modify, merge, publish,
-	distribute, sublicense, and/or sell copies of the Software, and to
-	permit persons to whom the Software is furnished to do so, subject to
-	the following conditions:
-
-	The above copyright notice and this permission notice shall be
-	included in all copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Changes in each release are described in [GitHub releases](https://github.com/jenkinsci/adoptopenjdk-plugin/releases).
