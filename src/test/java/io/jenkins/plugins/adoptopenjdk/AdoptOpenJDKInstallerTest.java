@@ -26,6 +26,9 @@ package io.jenkins.plugins.adoptopenjdk;
  * #L%
  */
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static hudson.Functions.isWindows;
+
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import hudson.FilePath;
@@ -34,17 +37,13 @@ import hudson.tasks.BatchFile;
 import hudson.tasks.Shell;
 import hudson.tools.InstallSourceProperty;
 import hudson.tools.ToolInstaller;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.Objects;
 import org.apache.commons.io.IOUtils;
 import org.junit.*;
 import org.jvnet.hudson.test.BuildWatcher;
 import org.jvnet.hudson.test.JenkinsRule;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.Objects;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static hudson.Functions.isWindows;
 
 public class AdoptOpenJDKInstallerTest {
 
@@ -55,28 +54,32 @@ public class AdoptOpenJDKInstallerTest {
     public JenkinsRule j = new JenkinsRule();
 
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.options().dynamicPort());
+    public WireMockRule wireMockRule =
+            new WireMockRule(WireMockConfiguration.options().dynamicPort());
 
     private AdoptOpenJDKInstaller installer;
     private JDK testJdk;
-    private Slave slave;
+    private Slave agent;
 
     @Before
     public void setUp() throws Exception {
-        // setup slave
-        slave = j.createOnlineSlave();
-        j.jenkins.addNode(slave);
+        // setup agent
+        agent = j.createOnlineSlave();
+        j.jenkins.addNode(agent);
 
         // configure jdk
         installer = new AdoptOpenJDKInstaller("jdk8u345-b01");
-        testJdk = new JDK("jdk8u345", null, Collections.singletonList(
-                new InstallSourceProperty(Collections.<ToolInstaller>singletonList(installer)))
-        );
+        testJdk = new JDK(
+                "jdk8u345",
+                null,
+                Collections.singletonList(
+                        new InstallSourceProperty(Collections.<ToolInstaller>singletonList(installer))));
         j.jenkins.getJDKs().add(testJdk);
 
         // download releases from mock
         DownloadService.Downloadable jdkDl = DownloadService.Downloadable.get(AdoptOpenJDKInstaller.class.getName());
-        String releases = IOUtils.toString(getClass().getResourceAsStream("/" + AdoptOpenJDKInstaller.class.getName()), StandardCharsets.UTF_8);
+        String releases = IOUtils.toString(
+                getClass().getResourceAsStream("/" + AdoptOpenJDKInstaller.class.getName()), StandardCharsets.UTF_8);
         jdkDl.getDataFile().write(releases.replaceAll("https://github.com", wireMockRule.baseUrl()));
 
         setupStub(".*linux.*", "Linux.tar.gz");
@@ -97,9 +100,11 @@ public class AdoptOpenJDKInstallerTest {
     @Test
     public void installFromCache() throws Exception {
         FreeStyleProject freeStyleProject = j.createFreeStyleProject();
-        freeStyleProject.setAssignedNode(slave);
+        freeStyleProject.setAssignedNode(agent);
         freeStyleProject.setJDK(testJdk);
-        freeStyleProject.getBuildersList().add(isWindows() ? new BatchFile("java -version") : new Shell("java -version"));
+        freeStyleProject
+                .getBuildersList()
+                .add(isWindows() ? new BatchFile("java -version") : new Shell("java -version"));
 
         // start initial build to initialize the cache on master
         FilePath cacheDir = j.jenkins.getRootPath().child("caches/adoptopenjdk");
@@ -109,13 +114,14 @@ public class AdoptOpenJDKInstallerTest {
         j.assertLogNotContains(cacheDir.getRemote(), freeStyleBuild1);
         Assert.assertTrue(cacheDir.exists());
 
-        // use installation on slave
+        // use installation on agent
         FreeStyleBuild freeStyleBuild2 = scheduleBuild(freeStyleProject);
         j.assertLogNotContains(wireMockRule.baseUrl(), freeStyleBuild2);
         j.assertLogNotContains(cacheDir.getRemote(), freeStyleBuild2);
 
-        // delete installation on slave
-        FilePath jdkInstallation = Objects.requireNonNull(slave.getRootPath()).child("tools/hudson.model.JDK/" + testJdk.getName());
+        // delete installation on agent
+        FilePath jdkInstallation =
+                Objects.requireNonNull(agent.getRootPath()).child("tools/hudson.model.JDK/" + testJdk.getName());
         Assert.assertTrue(jdkInstallation.exists());
         jdkInstallation.deleteRecursive();
         Assert.assertFalse(jdkInstallation.exists());
@@ -130,14 +136,12 @@ public class AdoptOpenJDKInstallerTest {
         stubFor(get(urlMatching(urlRegex))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/octet-stream")
-                        .withBodyFile(bodyFile)
-                )
-        );
+                        .withBodyFile(bodyFile)));
     }
 
     private FreeStyleBuild scheduleBuild(FreeStyleProject freeStyleProject) throws Exception {
         FreeStyleBuild freeStyleBuild = j.assertBuildStatusSuccess(freeStyleProject.scheduleBuild2(0));
-        Assert.assertEquals(slave, freeStyleBuild.getBuiltOn());
+        Assert.assertEquals(agent, freeStyleBuild.getBuiltOn());
         j.assertLogContains("mock install", freeStyleBuild);
         return freeStyleBuild;
     }
