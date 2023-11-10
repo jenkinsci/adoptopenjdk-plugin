@@ -25,5 +25,5 @@
   -->
 <?jelly escape-by-default='true'?>
 <div>
-    Provides an installer for the JDK tool that downloads the JDK from https://adoptium.net
+    Provides an installer for the JDK tool that downloads the Eclipse Temurin&#8482; build based upon OpenJDK from the <a href="https://adoptium.net/">Adoptium Working Group</a>.
 </div>
