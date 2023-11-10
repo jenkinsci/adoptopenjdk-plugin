@@ -26,7 +26,7 @@ package io.jenkins.plugins.adoptopenjdk;
  * #L%
  */
 
-
+import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import hudson.FilePath;
@@ -39,14 +39,6 @@ import hudson.tools.ToolInstallation;
 import hudson.tools.ToolInstaller;
 import hudson.tools.ToolInstallerDescriptor;
 import hudson.tools.ZipExtractionInstaller;
-import jenkins.model.Jenkins;
-import jenkins.security.MasterToSlaveCallable;
-import net.sf.json.JSONObject;
-import org.apache.commons.io.input.CountingInputStream;
-import org.jenkinsci.Symbol;
-import org.kohsuke.stapler.DataBoundConstructor;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,6 +49,12 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import jenkins.model.Jenkins;
+import jenkins.security.MasterToSlaveCallable;
+import net.sf.json.JSONObject;
+import org.apache.commons.io.input.CountingInputStream;
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * Install OpenJDK from <a href="https://adoptium.net">Adoptium</a>
@@ -88,7 +86,8 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
 
     @Override
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "TODO needs triage")
-    public FilePath performInstallation(ToolInstallation tool, Node node, TaskListener log) throws IOException, InterruptedException {
+    public FilePath performInstallation(ToolInstallation tool, Node node, TaskListener log)
+            throws IOException, InterruptedException {
         FilePath expected = preferredLocation(tool, node);
 
         try {
@@ -114,18 +113,17 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
 
             AdoptOpenJDKFile binary = release.getBinary(p, c);
             if (binary == null) {
-                throw new IOException(Messages.AdoptOpenJDKInstaller_performInstallation_binaryNotFound(
-                        id, p.name(), c.name())
-                );
+                throw new IOException(
+                        Messages.AdoptOpenJDKInstaller_performInstallation_binaryNotFound(id, p.name(), c.name()));
             }
             File cache = getLocalCacheFile(p, c);
             if (!DISABLE_CACHE && cache.exists()) {
                 try (InputStream in = cache.toURI().toURL().openStream()) {
                     CountingInputStream cis = new CountingInputStream(in);
                     try {
-                        log.getLogger().println(
-                                Messages.AdoptOpenJDKInstaller_performInstallation_fromCache(cache, expected, node.getDisplayName())
-                        );
+                        log.getLogger()
+                                .println(Messages.AdoptOpenJDKInstaller_performInstallation_fromCache(
+                                        cache, expected, node.getDisplayName()));
                         // the zip contains already the directory so we unzip to parent directory
                         FilePath parent = expected.getParent();
                         if (parent != null) {
@@ -134,9 +132,10 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
                             throw new NullPointerException("Parent directory of " + expected + " is null");
                         }
                     } catch (IOException e) {
-                        throw new IOException(Messages.AdoptOpenJDKInstaller_performInstallation_failedToUnpack(
-                                cache.toURI().toURL(), cis.getByteCount()), e
-                        );
+                        throw new IOException(
+                                Messages.AdoptOpenJDKInstaller_performInstallation_failedToUnpack(
+                                        cache.toURI().toURL(), cis.getByteCount()),
+                                e);
                     }
                 }
             } else {
@@ -221,7 +220,11 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
      * Supported platform
      */
     public enum Platform {
-        LINUX("linux"), WINDOWS("windows"), MACOS("mac"), SOLARIS("solaris"), AIX("aix");
+        LINUX("linux"),
+        WINDOWS("windows"),
+        MACOS("mac"),
+        SOLARIS("solaris"),
+        AIX("aix");
 
         private final String id;
 
@@ -264,7 +267,12 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
      * Supported CPU architecture
      */
     public enum CPU {
-        i386, amd64, Sparc, s390x, ppc64, arm;
+        i386,
+        amd64,
+        Sparc,
+        s390x,
+        ppc64,
+        arm;
 
         public static CPU of(Node n) throws IOException, InterruptedException, DetectionFailedException {
             VirtualChannel channel = n.getChannel();
@@ -334,10 +342,9 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         }
     }
 
-    @SuppressFBWarnings(value = {
-            "UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
-            "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"
-    }, justification = "Field initialized during deserialization from JSON object")
+    @SuppressFBWarnings(
+            value = {"UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD", "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"},
+            justification = "Field initialized during deserialization from JSON object")
     public static final class AdoptOpenJDKFamilyList {
         public AdoptOpenJDKFamily[] data = new AdoptOpenJDKFamily[0];
         public int version;
@@ -363,19 +370,17 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         }
     }
 
-    @SuppressFBWarnings(value = {
-            "UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD",
-            "UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"
-    }, justification = "Field initialized during deserialization from JSON object")
+    @SuppressFBWarnings(
+            value = {"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD", "UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"},
+            justification = "Field initialized during deserialization from JSON object")
     public static final class AdoptOpenJDKFamily {
         public String name;
         public AdoptOpenJDKRelease[] releases;
     }
 
-    @SuppressFBWarnings(value = {
-            "UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
-            "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"
-    }, justification = "Field initialized during deserialization from JSON object")
+    @SuppressFBWarnings(
+            value = {"UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD", "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"},
+            justification = "Field initialized during deserialization from JSON object")
     public static final class AdoptOpenJDKRelease {
         public AdoptOpenJDKFile[] binaries;
         public String release_name;
@@ -410,14 +415,16 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
                         if (f.architecture.equals("arm") || f.architecture.equals("aarch64")) return f;
                         break;
                     default:
-                        throw new IOException(Messages.AdoptOpenJDKInstaller_AdoptOpenJDKRelease_usupportedCpu(cpu.name()));
+                        throw new IOException(
+                                Messages.AdoptOpenJDKInstaller_AdoptOpenJDKRelease_usupportedCpu(cpu.name()));
                 }
             }
             return null;
         }
     }
 
-    @SuppressFBWarnings(value = "UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
+    @SuppressFBWarnings(
+            value = "UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
             justification = "Field initialized during deserialization from JSON object")
     public static final class AdoptOpenJDKFile {
         public String architecture;
