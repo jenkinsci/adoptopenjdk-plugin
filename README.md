@@ -110,7 +110,7 @@ import io.jenkins.plugins.adoptopenjdk.AdoptOpenJDKInstaller
 import jenkins.model.Jenkins
 
 final versions = [
-        'jdk8' : 'jdk8u382-b08',
+        'jdk8' : 'jdk8u392-b08',
         'jdk11': 'jdk-11.0.21+9',
         'jdk17': 'jdk-17.0.9+9',
         'jdk21': 'jdk-21.0.1+12',
@@ -128,12 +128,6 @@ Jenkins.instance.getDescriptor(hudson.model.JDK).with {
 }
 ```
 
-Changelog
----------
-[Changelog](https://github.com/jenkinsci/adoptopenjdk-plugin/releases)
+## Changelog
 
-Maintainers
-===========
-
-* Mark Waite
-* Mads Mohr Christensen
+Changes in each release are described in [GitHub releases](https://github.com/jenkinsci/adoptopenjdk-plugin/releases).
