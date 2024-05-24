@@ -97,7 +97,6 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
                 return expected;
             }
             expected.deleteRecursive();
-            expected.mkdirs();
 
             AdoptOpenJDKFamilyList jdkFamilyList = getAdoptOpenJDKFamilyList();
             if (jdkFamilyList.isEmpty()) {
