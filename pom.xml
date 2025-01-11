@@ -64,7 +64,8 @@
   <properties>
     <revision>1.6</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.baseline>2.361</jenkins.baseline>
+    <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
+    <jenkins.baseline>2.452</jenkins.baseline>
     <jenkins.version>${jenkins.baseline}.4</jenkins.version>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
     <spotless.check.skip>false</spotless.check.skip>
@@ -75,7 +76,7 @@
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-${jenkins.baseline}.x</artifactId>
-        <version>2102.v854b_fec19c92</version>
+        <version>3893.v213a_42768d35</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
