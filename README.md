@@ -1,4 +1,4 @@
-# Eclipse Temurin:tm: JDK installer plugin
+# Eclipse Temurin :tm: JDK installer plugin
 
 Provides an installer for the JDK tool that downloads the Eclipse Temurin:tm: build based upon OpenJDK from the [Adoptium Working Group](https://adoptium.net/).
 
