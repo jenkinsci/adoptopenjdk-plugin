@@ -39,62 +39,62 @@ tool:
           installers:
           - zip:
               label: "linux && amd64 && !Alpine && !cloud"
-              subdir: "jdk-11.0.21+9"
-              url: "https://example.com/jdk/11/OpenJDK11U-jdk_x64_linux_hotspot_11.0.21_9.tar.gz"
+              subdir: "jdk-11.0.25+9"
+              url: "https://example.com/jdk/11/OpenJDK11U-jdk_x64_linux_hotspot_11.0.25_9.tar.gz"
           - zip:
               label: "windows && amd64"
-              subdir: "jdk-11.0.21+9"
-              url: "https://example.com/jdk/11/OpenJDK11U-jdk_x64_windows_hotspot_11.0.21_9.zip"
+              subdir: "jdk-11.0.25+9"
+              url: "https://example.com/jdk/11/OpenJDK11U-jdk_x64_windows_hotspot_11.0.25_9.zip"
           - command:
               command: "true"
               label: "cloud"
-              toolHome: "/home/jenkins/tools/jdk-11.0.21+9"
+              toolHome: "/home/jenkins/tools/jdk-11.0.25+9"
           - command:
               command: "true"
               label: "freebsd"
               toolHome: "/usr/local/openjdk11"
           - adoptOpenJdkInstaller:
-              id: "jdk-11.0.21+9"
+              id: "jdk-11.0.25+9"
     - name: "jdk17"
       properties:
       - installSource:
           installers:
           - zip:
               label: "linux && amd64 && !Alpine && !cloud"
-              subdir: "jdk-17.0.9+9"
-              url: "https://example.com/jdk/17/OpenJDK17U-jdk_x64_linux_hotspot_17.0.9_9.tar.gz"
+              subdir: "jdk-17.0.13+11"
+              url: "https://example.com/jdk/17/OpenJDK17U-jdk_x64_linux_hotspot_17.0.13_11.tar.gz"
           - zip:
               label: "windows && amd64"
-              subdir: "jdk-17.0.9+9"
-              url: "https://example.com/jdk/17/OpenJDK17U-jdk_x64_windows_hotspot_17.0.9_9.zip"
+              subdir: "jdk-17.0.13+11"
+              url: "https://example.com/jdk/17/OpenJDK17U-jdk_x64_windows_hotspot_17.0.13_11.zip"
           - command:
               command: "true"
               label: "cloud"
-              toolHome: "/home/jenkins/tools/jdk-17.0.9+9"
+              toolHome: "/home/jenkins/tools/jdk-17.0.13+11"
           - command:
               command: "true"
               label: "freebsd"
               toolHome: "/usr/local/openjdk17"
           - adoptOpenJdkInstaller:
-              id: "jdk-17.0.9+9"
+              id: "jdk-17.0.13+11"
     - name: "jdk21"
       properties:
       - installSource:
           installers:
           - zip:
               label: "linux && amd64 && !Alpine && !cloud"
-              subdir: "jdk-21.0.1+12"
-              url: "https://example.com/jdk/21/OpenJDK21U-jdk_x64_linux_hotspot_21.0.1_12.tar.gz"
+              subdir: "jdk-21.0.5+11"
+              url: "https://example.com/jdk/21/OpenJDK21U-jdk_x64_linux_hotspot_21.0.5_11.tar.gz"
           - zip:
               label: "windows && amd64"
-              subdir: "jdk-21.0.1+12"
-              url: "https://example.com/jdk/21/OpenJDK21U-jdk_x64_windows_hotspot_21.0.1_12.zip"
+              subdir: "jdk-21.0.5+11"
+              url: "https://example.com/jdk/21/OpenJDK21U-jdk_x64_windows_hotspot_21.0.5_11.zip"
           - command:
               command: "true"
               label: "cloud"
-              toolHome: "/home/jenkins/tools/jdk-21.0.1+12"
+              toolHome: "/home/jenkins/tools/jdk-21.0.5+11"
           - adoptOpenJdkInstaller:
-              id: "jdk-21.0.1+12"
+              id: "jdk-21.0.5+11"
 ```
 
 ## Configure plugin via Groovy script
@@ -111,9 +111,9 @@ import jenkins.model.Jenkins
 
 final versions = [
         'jdk8' : 'jdk8u392-b08',
-        'jdk11': 'jdk-11.0.21+9',
-        'jdk17': 'jdk-17.0.9+9',
-        'jdk21': 'jdk-21.0.1+12',
+        'jdk11': 'jdk-11.0.25+9',
+        'jdk17': 'jdk-17.0.13+11',
+        'jdk21': 'jdk-21.0.5+11',
 ]
 
 Jenkins.instance.getDescriptor(hudson.model.JDK).with {
