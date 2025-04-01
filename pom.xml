@@ -68,7 +68,7 @@
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-${jenkins.baseline}.x</artifactId>
-        <version>4228.v0a_71308d905b_</version>
+        <version>4545.v56392b_7ca_7b_a_</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -79,7 +79,7 @@
     <dependency>
       <groupId>org.wiremock</groupId>
       <artifactId>wiremock-standalone</artifactId>
-      <version>3.12.0</version>
+      <version>3.12.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
