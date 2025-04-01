@@ -85,7 +85,6 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
     }
 
     @Override
-    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "TODO needs triage")
     public FilePath performInstallation(ToolInstallation tool, Node node, TaskListener log)
             throws IOException, InterruptedException {
         FilePath expected = preferredLocation(tool, node);
@@ -343,7 +342,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
     }
 
     @SuppressFBWarnings(
-            value = {"UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD", "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"},
+            value = "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
             justification = "Field initialized during deserialization from JSON object")
     public static final class AdoptOpenJDKFamilyList {
         public AdoptOpenJDKFamily[] data = new AdoptOpenJDKFamily[0];
