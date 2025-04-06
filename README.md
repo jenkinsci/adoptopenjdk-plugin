@@ -1,6 +1,6 @@
 # Eclipse Temurin&reg; JDK installer plugin
 
-Provides an installer for the JDK tool that downloads the Eclipse Temurin :registered: build based upon OpenJDK from the [Adoptium Working Group](https://adoptium.net/).
+Provides an installer for the JDK tool that downloads the Eclipse Temurin&reg; build based upon OpenJDK from the [Adoptium Working Group](https://adoptium.net/).
 
 ## Usage recommendations
 
@@ -24,7 +24,7 @@ The sample configuration below defines tool installers based on agent labels, an
 * locally installed Java on agents with the `cloud` label
 * locally installed Java on agents with the `freebsd` label
 
-If none of those installers are selected, then as a fallback, the agent will download the specified Java version from the Eclipse Temurin :registered: project.
+If none of those installers are selected, then as a fallback, the agent will download the specified Java version from the Eclipse Temurin&reg; project.
 
 The example shows the preference to first use locally available zip files and local installations of the JDK.
 The JDK will be downloaded from the Eclipse Temurin project only in cases where the local installation is not available or does not apply.
