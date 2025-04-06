@@ -1,6 +1,6 @@
-# Eclipse Temurin :tm: JDK installer plugin
+# Eclipse Temurin&reg; JDK installer plugin
 
-Provides an installer for the JDK tool that downloads the Eclipse Temurin :tm: build based upon OpenJDK from the [Adoptium Working Group](https://adoptium.net/).
+Provides an installer for the JDK tool that downloads the Eclipse Temurin&reg; build based upon OpenJDK from the [Adoptium Working Group](https://adoptium.net/).
 
 ## Usage recommendations
 
@@ -24,7 +24,7 @@ The sample configuration below defines tool installers based on agent labels, an
 * locally installed Java on agents with the `cloud` label
 * locally installed Java on agents with the `freebsd` label
 
-If none of those installers are selected, then as a fallback, the agent will download the specified Java version from the Eclipse Temurin :tm: project.
+If none of those installers are selected, then as a fallback, the agent will download the specified Java version from the Eclipse Temurin&reg; project.
 
 The example shows the preference to first use locally available zip files and local installations of the JDK.
 The JDK will be downloaded from the Eclipse Temurin project only in cases where the local installation is not available or does not apply.
@@ -39,62 +39,62 @@ tool:
           installers:
           - zip:
               label: "linux && amd64 && !Alpine && !cloud"
-              subdir: "jdk-11.0.25+9"
-              url: "https://example.com/jdk/11/OpenJDK11U-jdk_x64_linux_hotspot_11.0.25_9.tar.gz"
+              subdir: "jdk-11.0.26+4"
+              url: "https://example.com/jdk/11/OpenJDK11U-jdk_x64_linux_hotspot_11.0.26_4.tar.gz"
           - zip:
               label: "windows && amd64"
-              subdir: "jdk-11.0.25+9"
-              url: "https://example.com/jdk/11/OpenJDK11U-jdk_x64_windows_hotspot_11.0.25_9.zip"
+              subdir: "jdk-11.0.26+4"
+              url: "https://example.com/jdk/11/OpenJDK11U-jdk_x64_windows_hotspot_11.0.26_4.zip"
           - command:
               command: "true"
               label: "cloud"
-              toolHome: "/home/jenkins/tools/jdk-11.0.25+9"
+              toolHome: "/home/jenkins/tools/jdk-11.0.26+4"
           - command:
               command: "true"
               label: "freebsd"
               toolHome: "/usr/local/openjdk11"
           - adoptOpenJdkInstaller:
-              id: "jdk-11.0.25+9"
+              id: "jdk-11.0.26+4"
     - name: "jdk17"
       properties:
       - installSource:
           installers:
           - zip:
               label: "linux && amd64 && !Alpine && !cloud"
-              subdir: "jdk-17.0.13+11"
-              url: "https://example.com/jdk/17/OpenJDK17U-jdk_x64_linux_hotspot_17.0.13_11.tar.gz"
+              subdir: "jdk-17.0.14+7"
+              url: "https://example.com/jdk/17/OpenJDK17U-jdk_x64_linux_hotspot_17.0.14_7.tar.gz"
           - zip:
               label: "windows && amd64"
-              subdir: "jdk-17.0.13+11"
-              url: "https://example.com/jdk/17/OpenJDK17U-jdk_x64_windows_hotspot_17.0.13_11.zip"
+              subdir: "jdk-17.0.14+7"
+              url: "https://example.com/jdk/17/OpenJDK17U-jdk_x64_windows_hotspot_17.0.14_7.zip"
           - command:
               command: "true"
               label: "cloud"
-              toolHome: "/home/jenkins/tools/jdk-17.0.13+11"
+              toolHome: "/home/jenkins/tools/jdk-17.0.14+7"
           - command:
               command: "true"
               label: "freebsd"
               toolHome: "/usr/local/openjdk17"
           - adoptOpenJdkInstaller:
-              id: "jdk-17.0.13+11"
+              id: "jdk-17.0.14+7"
     - name: "jdk21"
       properties:
       - installSource:
           installers:
           - zip:
               label: "linux && amd64 && !Alpine && !cloud"
-              subdir: "jdk-21.0.5+11"
-              url: "https://example.com/jdk/21/OpenJDK21U-jdk_x64_linux_hotspot_21.0.5_11.tar.gz"
+              subdir: "jdk-21.0.6+7"
+              url: "https://example.com/jdk/21/OpenJDK21U-jdk_x64_linux_hotspot_21.0.6_7.tar.gz"
           - zip:
               label: "windows && amd64"
-              subdir: "jdk-21.0.5+11"
-              url: "https://example.com/jdk/21/OpenJDK21U-jdk_x64_windows_hotspot_21.0.5_11.zip"
+              subdir: "jdk-21.0.6+7"
+              url: "https://example.com/jdk/21/OpenJDK21U-jdk_x64_windows_hotspot_21.0.6_7.zip"
           - command:
               command: "true"
               label: "cloud"
-              toolHome: "/home/jenkins/tools/jdk-21.0.5+11"
+              toolHome: "/home/jenkins/tools/jdk-21.0.6+7"
           - adoptOpenJdkInstaller:
-              id: "jdk-21.0.5+11"
+              id: "jdk-21.0.6+7"
 ```
 
 ## Configure plugin via Groovy script
@@ -110,10 +110,10 @@ import io.jenkins.plugins.adoptopenjdk.AdoptOpenJDKInstaller
 import jenkins.model.Jenkins
 
 final versions = [
-        'jdk8' : 'jdk8u392-b08',
-        'jdk11': 'jdk-11.0.25+9',
-        'jdk17': 'jdk-17.0.13+11',
-        'jdk21': 'jdk-21.0.5+11',
+        'jdk8' : 'jdk8u442-b06',
+        'jdk11': 'jdk-11.0.26+4',
+        'jdk17': 'jdk-17.0.14+7',
+        'jdk21': 'jdk-21.0.6+7',
 ]
 
 Jenkins.instance.getDescriptor(hudson.model.JDK).with {
