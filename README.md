@@ -1,4 +1,4 @@
-# Eclipse Temurin :registered: JDK installer plugin
+# Eclipse Temurin&reg; JDK installer plugin
 
 Provides an installer for the JDK tool that downloads the Eclipse Temurin :registered: build based upon OpenJDK from the [Adoptium Working Group](https://adoptium.net/).
 
