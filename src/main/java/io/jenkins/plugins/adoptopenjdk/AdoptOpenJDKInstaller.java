@@ -43,12 +43,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Stream;
 import jenkins.model.Jenkins;
 import jenkins.security.MasterToSlaveCallable;
 import net.sf.json.JSONObject;
@@ -220,6 +222,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
      */
     public enum Platform {
         LINUX("linux"),
+        ALPINE_LINUX("alpine-linux"),
         WINDOWS("windows"),
         MACOS("mac"),
         SOLARIS("solaris"),
@@ -241,12 +244,25 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
 
         public static Platform current() throws DetectionFailedException {
             String arch = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
-            if (arch.contains("linux")) return LINUX;
+            if (arch.contains("linux")) return isAlpineLinux() ? ALPINE_LINUX : LINUX;
             if (arch.contains("windows")) return WINDOWS;
             if (arch.contains("sun") || arch.contains("solaris")) return SOLARIS;
             if (arch.contains("mac")) return MACOS;
             if (arch.contains("aix")) return AIX;
             throw new DetectionFailedException(Messages.AdoptOpenJDKInstaller_Platform_unknownPlatform(arch));
+        }
+
+        // Package protected so that tests can modify it
+        static String osReleaseLocation = "/etc/os-release";
+
+        // Package protected so that it can be tested
+        static boolean isAlpineLinux() {
+            File osRelease = new File(osReleaseLocation);
+            try (Stream<String> lines = Files.lines(osRelease.toPath(), Charset.defaultCharset())) {
+                return lines.anyMatch("ID=alpine"::equalsIgnoreCase);
+            } catch (IOException ioe) {
+                return false; // Do not fail OS detection if osReleaseLocation does not exist
+            }
         }
 
         public String getId() {

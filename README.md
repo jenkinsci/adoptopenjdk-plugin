@@ -33,68 +33,54 @@ The JDK will be downloaded from the Eclipse Temurin project only in cases where 
 tool:
   jdk:
     installations:
-    - name: "jdk11"
-      properties:
-      - installSource:
-          installers:
-          - zip:
-              label: "linux && amd64 && !Alpine && !cloud"
-              subdir: "jdk-11.0.26+4"
-              url: "https://example.com/jdk/11/OpenJDK11U-jdk_x64_linux_hotspot_11.0.26_4.tar.gz"
-          - zip:
-              label: "windows && amd64"
-              subdir: "jdk-11.0.26+4"
-              url: "https://example.com/jdk/11/OpenJDK11U-jdk_x64_windows_hotspot_11.0.26_4.zip"
-          - command:
-              command: "true"
-              label: "cloud"
-              toolHome: "/home/jenkins/tools/jdk-11.0.26+4"
-          - command:
-              command: "true"
-              label: "freebsd"
-              toolHome: "/usr/local/openjdk11"
-          - adoptOpenJdkInstaller:
-              id: "jdk-11.0.26+4"
     - name: "jdk17"
       properties:
       - installSource:
           installers:
           - zip:
               label: "linux && amd64 && !Alpine && !cloud"
-              subdir: "jdk-17.0.14+7"
+              subdir: "jdk-17.0.15+6"
               url: "https://example.com/jdk/17/OpenJDK17U-jdk_x64_linux_hotspot_17.0.14_7.tar.gz"
           - zip:
+              label: "linux && amd64 && Alpine && !cloud"
+              subdir: "jdk-17.0.15+6"
+              url: "https://example.com/jdk/17/OpenJDK17U-jdk_x64_alpine-linux_hotspot_17.0.15_6.tar.gz"
+          - zip:
               label: "windows && amd64"
-              subdir: "jdk-17.0.14+7"
-              url: "https://example.com/jdk/17/OpenJDK17U-jdk_x64_windows_hotspot_17.0.14_7.zip"
+              subdir: "jdk-17.0.15+6"
+              url: "https://example.com/jdk/17/OpenJDK17U-jdk_x64_windows_hotspot_17.0.15_6.zip"
           - command:
               command: "true"
               label: "cloud"
-              toolHome: "/home/jenkins/tools/jdk-17.0.14+7"
+              toolHome: "/home/jenkins/tools/jdk-17.0.15+6"
           - command:
               command: "true"
               label: "freebsd"
               toolHome: "/usr/local/openjdk17"
           - adoptOpenJdkInstaller:
-              id: "jdk-17.0.14+7"
+              id: "jdk-17.0.15+6"
     - name: "jdk21"
       properties:
       - installSource:
           installers:
           - zip:
               label: "linux && amd64 && !Alpine && !cloud"
-              subdir: "jdk-21.0.6+7"
-              url: "https://example.com/jdk/21/OpenJDK21U-jdk_x64_linux_hotspot_21.0.6_7.tar.gz"
+              subdir: "jdk-21.0.7+6"
+              url: "https://example.com/jdk/21/OpenJDK21U-jdk_x64_linux_hotspot_21.0.7_6.tar.gz"
+          - zip:
+              label: "linux && amd64 && Alpine && !cloud"
+              subdir: "jdk-21.0.7+6"
+              url: "https://example.com/jdk/21/OpenJDK21U-jdk_x64_alpine-linux_hotspot_21.0.7_6.tar.gz"
           - zip:
               label: "windows && amd64"
-              subdir: "jdk-21.0.6+7"
-              url: "https://example.com/jdk/21/OpenJDK21U-jdk_x64_windows_hotspot_21.0.6_7.zip"
+              subdir: "jdk-21.0.7+6"
+              url: "https://example.com/jdk/21/OpenJDK21U-jdk_x64_windows_hotspot_21.0.7_6.zip"
           - command:
               command: "true"
               label: "cloud"
-              toolHome: "/home/jenkins/tools/jdk-21.0.6+7"
+              toolHome: "/home/jenkins/tools/jdk-21.0.7+6"
           - adoptOpenJdkInstaller:
-              id: "jdk-21.0.6+7"
+              id: "jdk-21.0.7+6"
 ```
 
 ## Configure plugin via Groovy script
@@ -110,10 +96,10 @@ import io.jenkins.plugins.adoptopenjdk.AdoptOpenJDKInstaller
 import jenkins.model.Jenkins
 
 final versions = [
-        'jdk8' : 'jdk8u442-b06',
-        'jdk11': 'jdk-11.0.26+4',
-        'jdk17': 'jdk-17.0.14+7',
-        'jdk21': 'jdk-21.0.6+7',
+        'jdk8' : 'jdk8u452-b09',
+        'jdk11': 'jdk-11.0.27+6',
+        'jdk17': 'jdk-17.0.15+6',
+        'jdk21': 'jdk-21.0.7+6',
 ]
 
 Jenkins.instance.getDescriptor(hudson.model.JDK).with {
