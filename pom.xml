@@ -34,7 +34,7 @@
   </parent>
   <groupId>io.jenkins.plugins</groupId>
   <artifactId>adoptopenjdk</artifactId>
-  <version>${revision}${changelist}</version>
+  <version>${changelist}</version>
   <packaging>hpi</packaging>
   <name>Eclipse Temurin installer Plugin</name>
 
@@ -54,8 +54,7 @@
   </scm>
 
   <properties>
-    <revision>1.8</revision>
-    <changelist>-SNAPSHOT</changelist>
+    <changelist>999999-SNAPSHOT</changelist>
     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
     <jenkins.baseline>2.479</jenkins.baseline>
     <jenkins.version>${jenkins.baseline}.3</jenkins.version>
