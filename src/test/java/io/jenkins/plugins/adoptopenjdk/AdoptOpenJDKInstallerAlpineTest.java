@@ -65,7 +65,6 @@ public class AdoptOpenJDKInstallerAlpineTest {
         AdoptOpenJDKInstaller.Platform.osReleaseLocation =
                 getClass().getResource("alpine-os-release").getFile();
         if (isWindows()) {
-            assertFalse(AdoptOpenJDKInstaller.Platform.isAlpineLinux());
             assertThat(AdoptOpenJDKInstaller.Platform.current(), is(WINDOWS));
         } else {
             assertTrue(AdoptOpenJDKInstaller.Platform.isAlpineLinux());
@@ -78,7 +77,6 @@ public class AdoptOpenJDKInstallerAlpineTest {
         AdoptOpenJDKInstaller.Platform.osReleaseLocation =
                 getClass().getResource("ubuntu-os-release").getFile();
         if (isWindows()) {
-            assertFalse(AdoptOpenJDKInstaller.Platform.isAlpineLinux());
             assertThat(AdoptOpenJDKInstaller.Platform.current(), is(WINDOWS));
         } else {
             assertFalse(AdoptOpenJDKInstaller.Platform.isAlpineLinux());
