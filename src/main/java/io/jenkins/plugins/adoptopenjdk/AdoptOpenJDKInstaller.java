@@ -257,7 +257,8 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
 
         // Package protected so that it can be tested
         static boolean isAlpineLinux() {
-            try (Stream<String> lines = Files.lines(Path.of(osReleaseLocation), Charset.defaultCharset())) {
+            File osRelease = new File(osReleaseLocation);
+            try (Stream<String> lines = Files.lines(osRelease.toPath(), Charset.defaultCharset())) {
                 return lines.anyMatch("ID=alpine"::equalsIgnoreCase);
             } catch (IOException ioe) {
                 return false; // Do not fail OS detection if osReleaseLocation does not exist
