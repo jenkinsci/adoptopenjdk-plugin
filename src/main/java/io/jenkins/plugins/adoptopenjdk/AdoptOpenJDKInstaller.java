@@ -287,6 +287,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         Sparc,
         s390x,
         ppc64,
+        riscv64,
         arm;
 
         public static CPU of(Node n) throws IOException, InterruptedException, DetectionFailedException {
@@ -304,6 +305,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
             if (arch.contains("86")) return i386;
             if (arch.contains("s390x")) return s390x;
             if (arch.contains("ppc64")) return ppc64;
+            if (arch.contains("riscv64")) return riscv64;
             if (arch.contains("arm") || arch.contains("aarch64")) return arm;
             throw new DetectionFailedException(Messages.AdoptOpenJDKInstaller_CPU_unknownCpu(arch));
         }
@@ -422,6 +424,9 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
                         break;
                     case ppc64:
                         if (f.architecture.equals("ppc64") || f.architecture.equals("ppc64le")) return f;
+                        break;
+                    case riscv64:
+                        if (f.architecture.equals("riscv64")) return f;
                         break;
                     case s390x:
                         if (f.architecture.equals("s390x")) return f;
