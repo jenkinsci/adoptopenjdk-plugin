@@ -4,7 +4,7 @@ package io.jenkins.plugins.adoptopenjdk;
  * #%L
  * Eclipse Temurin installer Plugin
  * %%
- * Copyright (C) 2016 - 2019 Mads Mohr Christensen
+ * Copyright (C) 2016 - 2026 Mads Mohr Christensen
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -51,11 +51,15 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.stream.Stream;
 import jenkins.model.Jenkins;
 import jenkins.security.MasterToSlaveCallable;
@@ -71,6 +75,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 public class AdoptOpenJDKInstaller extends ToolInstaller {
 
     private static boolean DISABLE_CACHE = Boolean.getBoolean(AdoptOpenJDKInstaller.class.getName() + ".cache.disable");
+    private static Long OLD_LATEST_RELEASE_CLEANUP_DAYS =
+            Long.getLong(AdoptOpenJDKInstaller.class.getName() + ".cleanup.days", 30);
 
     /**
      * Eclipse Temurin release id
@@ -87,30 +93,65 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
     private static AdoptOpenJDKFamilyList getAdoptOpenJDKFamilyList() throws IOException {
         AdoptOpenJDKList list = AdoptOpenJDKList.all().get(AdoptOpenJDKList.class);
         if (list == null) {
-            throw new IOException(Messages.AdoptOpenJDKInstaller_getAdoptOpenJDKFamilyList_NoDownloadable());
+            throw new IllegalStateException(Messages.AdoptOpenJDKInstaller_getAdoptOpenJDKFamilyList_NoDownloadable());
         }
         return list.toList();
     }
 
+    private AdoptOpenJDKFamilyList getJDKFamilyList() throws IOException {
+        AdoptOpenJDKFamilyList familyList = getAdoptOpenJDKFamilyList();
+        if (familyList.isEmpty()) {
+            throw new IOException(Messages.AdoptOpenJDKInstaller_performInstallation_emptyJdkFamilyList());
+        }
+        return familyList;
+    }
+
+    // TODO: Check if invocations can be reduced/cached?! per run execution and node
     @Override
     public FilePath performInstallation(ToolInstallation tool, Node node, TaskListener log)
             throws IOException, InterruptedException {
         FilePath expected = preferredLocation(tool, node);
 
         try {
+            final String id; // the (if necessary resolved) id of a specific release
+            AdoptOpenJDKRelease release = null;
+
+            String latestFeature = AdoptOpenJDKFamily.getFeatureVersionIfLatest(this.id);
+            if (latestFeature != null) { // Resolve latest (service) release
+                AdoptOpenJDKFamily featureFamiliy = Arrays.stream(getJDKFamilyList().data)
+                        .filter(f -> latestFeature.equals(f.feature_version))
+                        .findFirst()
+                        .orElseThrow(() -> new IOException(
+                                Messages.AdoptOpenJDKInstaller_performInstallation_releaseNotFound(this.id)));
+                // TODO: Or just get the latest release (less convenient in case the support
+                // matrix changes or some platforms take longer to build).
+                Configuration c = Configuration.of(node);
+                release = Arrays.stream(featureFamiliy.releases)
+                        .filter(r -> r.getBinary(c.platform(), c.cpu()) != null)
+                        .findFirst()
+                        .orElseThrow(
+                                () -> new IOException(Messages.AdoptOpenJDKInstaller_performInstallation_binaryNotFound(
+                                        this.id, c.platform().name(), c.cpu().name())));
+                // Don't change existing installations to prevent problems if another running
+                // job is currently using the old installation.
+                expected = expected.child(release.release_name);
+                cleanupOldReleases(expected);
+                id = release.release_name;
+            } else {
+                id = this.id;
+            }
             // already installed?
             FilePath marker = expected.child(".installedByJenkins");
             if (marker.exists() && marker.readToString().equals(id)) {
+                if (latestFeature != null) {
+                    marker.touch(System.currentTimeMillis());
+                }
                 return expected;
             }
             expected.deleteRecursive();
             expected.mkdirs();
 
-            AdoptOpenJDKFamilyList jdkFamilyList = getAdoptOpenJDKFamilyList();
-            if (jdkFamilyList.isEmpty()) {
-                throw new IOException(Messages.AdoptOpenJDKInstaller_performInstallation_emptyJdkFamilyList());
-            }
-            AdoptOpenJDKRelease release = jdkFamilyList.getRelease(id);
+            release = release == null ? getJDKFamilyList().getRelease(id) : release;
             if (release == null) {
                 throw new IOException(Messages.AdoptOpenJDKInstaller_performInstallation_releaseNotFound(id));
             }
@@ -124,7 +165,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
                 throw new IOException(
                         Messages.AdoptOpenJDKInstaller_performInstallation_binaryNotFound(id, p.name(), c.name()));
             }
-            File cache = getLocalCacheFile(p, c);
+            File cache = getLocalCacheFile(p, c, id);
             if (!DISABLE_CACHE && cache.exists()) {
                 try (InputStream in = new FileInputStream(cache)) {
                     CountingInputStream cis = new CountingInputStream(in);
@@ -176,7 +217,24 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         return expected;
     }
 
-    private File getLocalCacheFile(Platform platform, CPU cpu) {
+    private void cleanupOldReleases(FilePath expected) throws IOException, InterruptedException {
+        if (OLD_LATEST_RELEASE_CLEANUP_DAYS <= 0) {
+            return;
+        }
+        long reference = Instant.now()
+                .minus(Duration.ofDays(OLD_LATEST_RELEASE_CLEANUP_DAYS))
+                .toEpochMilli();
+        for (FilePath directory : expected.getParent().listDirectories()) {
+            if (!directory.equals(expected)) {
+                FilePath marker = directory.child(".installedByJenkins");
+                if (marker.lastModified() < reference) {
+                    directory.deleteRecursive();
+                }
+            }
+        }
+    }
+
+    private File getLocalCacheFile(Platform platform, CPU cpu, String id) {
         // we force .zip file
         return new File(Jenkins.get().getRootDir(), "caches/adoptopenjdk/" + platform + "/" + cpu + "/" + id + ".zip");
     }
@@ -247,12 +305,21 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
 
     private record Configuration(Platform platform, CPU cpu) implements Serializable {
 
-        static Configuration of(Node node) throws IOException, InterruptedException, DetectionFailedException {
+        private static final Map<Node, Configuration> CACHE = new WeakHashMap<>();
+
+        static synchronized Configuration of(Node node)
+                throws IOException, InterruptedException, DetectionFailedException {
+            Configuration configuration = CACHE.get(node);
+            if (configuration != null) {
+                return configuration;
+            }
             VirtualChannel channel = node.getChannel();
             if (channel == null) {
                 throw new IOException(Messages.AdoptOpenJDKInstaller_Platform_nullChannel(node.getDisplayName()));
             }
-            return channel.call(new Configuration.GetCurrent());
+            configuration = channel.call(new Configuration.GetCurrent());
+            CACHE.put(node, configuration);
+            return configuration;
         }
 
         static class GetCurrent extends MasterToSlaveCallable<Configuration, DetectionFailedException> {
@@ -417,12 +484,31 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         }
     }
 
+    /**
+     * The group of JDK releases for the same feature (respectively 'major) version.
+     */
     @SuppressFBWarnings(
             value = {"UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD", "UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"},
             justification = "Field initialized during deserialization from JSON object")
     public static final class AdoptOpenJDKFamily {
         public String name;
+        public String feature_version;
         public AdoptOpenJDKRelease[] releases;
+
+        private static final String LATEST_PREFIX = "jdk-";
+        private static final String LATEST_SUFFIX = "-latest";
+
+        public String getLatestRelease() {
+            String feature = feature_version;
+            return feature != null ? LATEST_PREFIX + feature + LATEST_SUFFIX : null;
+        }
+
+        static String getFeatureVersionIfLatest(String id) {
+            if (id.startsWith(LATEST_PREFIX) && id.endsWith(LATEST_SUFFIX)) {
+                return id.substring(LATEST_PREFIX.length(), id.length() - LATEST_SUFFIX.length());
+            }
+            return null;
+        }
     }
 
     @SuppressFBWarnings(
