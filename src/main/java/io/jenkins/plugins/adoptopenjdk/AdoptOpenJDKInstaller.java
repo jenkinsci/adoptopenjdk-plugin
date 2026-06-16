@@ -48,6 +48,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
@@ -349,7 +350,9 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         public AdoptOpenJDKFamilyList toList() throws IOException {
             JSONObject d = getData();
             if (d == null) return new AdoptOpenJDKFamilyList();
-            return (AdoptOpenJDKFamilyList) JSONObject.toBean(d, AdoptOpenJDKFamilyList.class);
+            AdoptOpenJDKFamilyList list = (AdoptOpenJDKFamilyList) JSONObject.toBean(d, AdoptOpenJDKFamilyList.class);
+            Collections.reverse(Arrays.asList(list.data));
+            return list;
         }
     }
 
