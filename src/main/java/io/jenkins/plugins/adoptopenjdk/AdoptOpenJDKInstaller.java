@@ -52,6 +52,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Stream;
 import jenkins.model.Jenkins;
 import jenkins.security.MasterToSlaveCallable;
@@ -289,23 +290,33 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
      * Supported CPU architecture
      */
     public enum CPU {
-        i386,
-        amd64,
-        Sparc,
-        s390x,
-        ppc64,
-        riscv64,
-        arm;
+        // Based on org.apache.commons.lang3.ArchUtils
+        I386("x32", Set.of("x86", "i386", "i486", "i586", "i686", "i86pc")), //
+        AMD64("x64", Set.of("amd64", "x86_64")), //
+        SPARC("sparcv9", Set.of("sparc", "sparcv9")), //
+        S390X("s390x", Set.of("s390x")), //
+        PPC64("ppc64", Set.of("ppc64")), //
+        PPC64LE("ppc64le", Set.of("ppc64le")), //
+        RISCV64("riscv64", Set.of("riscv64")), //
+        ARM("arm", Set.of("arm")), //
+        ARM64("aarch64", Set.of("aarch64", "arm64")), //
+        ;
+
+        private final Set<String> systemNames;
+        final String adoptiumName;
+
+        private CPU(String adoptiumName, Set<String> systemNames) {
+            this.adoptiumName = adoptiumName;
+            this.systemNames = systemNames;
+        }
 
         public static CPU current() throws DetectionFailedException {
             String arch = System.getProperty("os.arch").toLowerCase(Locale.ENGLISH);
-            if (arch.contains("sparc")) return Sparc;
-            if (arch.contains("amd64") || arch.contains("86_64")) return amd64;
-            if (arch.contains("86")) return i386;
-            if (arch.contains("s390x")) return s390x;
-            if (arch.contains("ppc64")) return ppc64;
-            if (arch.contains("riscv64")) return riscv64;
-            if (arch.contains("arm") || arch.contains("aarch64")) return arm;
+            for (CPU cpu : CPU.values()) {
+                if (cpu.systemNames.contains(arch)) {
+                    return cpu;
+                }
+            }
             throw new DetectionFailedException(Messages.AdoptOpenJDKInstaller_CPU_unknownCpu(arch));
         }
     }
@@ -402,36 +413,13 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
             return rhs != null && rhs.equals(release_name);
         }
 
-        public AdoptOpenJDKFile getBinary(Platform platform, CPU cpu) throws IOException {
+        public AdoptOpenJDKFile getBinary(Platform platform, CPU cpu) {
             for (AdoptOpenJDKFile f : binaries) {
                 if (!platform.getId().equals(f.os) || !openjdk_impl.equals(f.openjdk_impl)) {
                     continue;
                 }
-                switch (cpu) {
-                    case i386:
-                        if (f.architecture.equals("x32")) return f;
-                        break;
-                    case amd64:
-                        if (f.architecture.equals("x64")) return f;
-                        break;
-                    case Sparc:
-                        if (f.architecture.equals("sparcv9")) return f;
-                        break;
-                    case ppc64:
-                        if (f.architecture.equals("ppc64") || f.architecture.equals("ppc64le")) return f;
-                        break;
-                    case riscv64:
-                        if (f.architecture.equals("riscv64")) return f;
-                        break;
-                    case s390x:
-                        if (f.architecture.equals("s390x")) return f;
-                        break;
-                    case arm:
-                        if (f.architecture.equals("arm") || f.architecture.equals("aarch64")) return f;
-                        break;
-                    default:
-                        throw new IOException(
-                                Messages.AdoptOpenJDKInstaller_AdoptOpenJDKRelease_usupportedCpu(cpu.name()));
+                if (cpu.adoptiumName.equals(f.architecture)) {
+                    return f;
                 }
             }
             return null;

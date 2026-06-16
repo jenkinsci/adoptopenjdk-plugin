@@ -14,6 +14,37 @@ The recommended and preferred approach is to download the JDK distribution using
 well known URL (preferably hosted on your own network) with _ZIP Tool Installer_, having it pre-installed in agent
 docker images, or executing a script to do the job.
 
+## Supported operating systems
+
+JDKs for the following operating systems can be provided
+- ´Linux´
+- ´Windows´
+- ´macOS´
+- ´Solaris´
+- ´AIX´
+- ´Alpine-linux´
+
+Beware that not each possible combination of CPU architectures and operating system is supported.
+
+## Supported CPU architectures
+
+JDKs for the following CPU architectures can be provided
+- `x64`
+- `x32`
+- `aarch64`
+- `arm`
+- `ppc64`
+- `ppc64le`
+- `s390x`
+- `sparcv9`
+- `riscv64`
+
+Beware that not each possible combination of CPU architectures and operating system is supported.
+
+*NOTE*:
+In release `166.v7b_215d91b_68f` and before the architectures `arm` and `aarch64` as well as `ppc64` and `ppc64le` were incorrectly combined.
+This may have led to situations where the wrong one of the two architectures was installed, but is now corrected.
+
 ## Configure plugin with [Configuration as Code](https://plugins.jenkins.io/configuration-as-code/)
 
 The [configuration as code plugin](https://plugins.jenkins.io/configuration-as-code/) allows administrators to automate Jenkins configuration.
