@@ -43,6 +43,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -110,8 +111,9 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
                 throw new IOException(Messages.AdoptOpenJDKInstaller_performInstallation_releaseNotFound(id));
             }
 
-            Platform p = Platform.of(node);
-            CPU c = CPU.of(node);
+            Configuration configuration = Configuration.of(node);
+            Platform p = configuration.platform();
+            CPU c = configuration.cpu();
 
             AdoptOpenJDKFile binary = release.getBinary(p, c);
             if (binary == null) {
@@ -218,6 +220,26 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         return children.get(0);
     }
 
+    private record Configuration(Platform platform, CPU cpu) implements Serializable {
+
+        static Configuration of(Node node) throws IOException, InterruptedException, DetectionFailedException {
+            VirtualChannel channel = node.getChannel();
+            if (channel == null) {
+                throw new IOException(Messages.AdoptOpenJDKInstaller_Platform_nullChannel(node.getDisplayName()));
+            }
+            return channel.call(new Configuration.GetCurrent());
+        }
+
+        static class GetCurrent extends MasterToSlaveCallable<Configuration, DetectionFailedException> {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Configuration call() throws DetectionFailedException {
+                return new Configuration(Platform.current(), CPU.current());
+            }
+        }
+    }
+
     /**
      * Supported platform
      */
@@ -233,14 +255,6 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
 
         Platform(String id) {
             this.id = id;
-        }
-
-        public static Platform of(Node n) throws IOException, InterruptedException, DetectionFailedException {
-            VirtualChannel channel = n.getChannel();
-            if (channel == null) {
-                throw new IOException(Messages.AdoptOpenJDKInstaller_Platform_nullChannel(n.getDisplayName()));
-            }
-            return channel.call(new Platform.GetCurrentPlatform());
         }
 
         public static Platform current() throws DetectionFailedException {
@@ -269,14 +283,6 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         public String getId() {
             return id;
         }
-
-        static class GetCurrentPlatform extends MasterToSlaveCallable<Platform, DetectionFailedException> {
-            private static final long serialVersionUID = 1L;
-
-            public Platform call() throws DetectionFailedException {
-                return current();
-            }
-        }
     }
 
     /**
@@ -291,14 +297,6 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
         riscv64,
         arm;
 
-        public static CPU of(Node n) throws IOException, InterruptedException, DetectionFailedException {
-            VirtualChannel channel = n.getChannel();
-            if (channel == null) {
-                throw new IOException(Messages.AdoptOpenJDKInstaller_CPU_nullChannel(n.getDisplayName()));
-            }
-            return channel.call(new CPU.GetCurrentCPU());
-        }
-
         public static CPU current() throws DetectionFailedException {
             String arch = System.getProperty("os.arch").toLowerCase(Locale.ENGLISH);
             if (arch.contains("sparc")) return Sparc;
@@ -309,14 +307,6 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
             if (arch.contains("riscv64")) return riscv64;
             if (arch.contains("arm") || arch.contains("aarch64")) return arm;
             throw new DetectionFailedException(Messages.AdoptOpenJDKInstaller_CPU_unknownCpu(arch));
-        }
-
-        static class GetCurrentCPU extends MasterToSlaveCallable<CPU, DetectionFailedException> {
-            private static final long serialVersionUID = 1L;
-
-            public CPU call() throws DetectionFailedException {
-                return current();
-            }
         }
     }
 
@@ -357,6 +347,8 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
     }
 
     private static final class DetectionFailedException extends Exception {
+        private static final long serialVersionUID = -8069815243317818959L;
+
         private DetectionFailedException(String message) {
             super(message);
         }
