@@ -73,9 +73,9 @@ class AdoptOpenJDKInstallerTest {
         jenkinsRule.jenkins.addNode(agent);
 
         // configure jdk
-        installer = new AdoptOpenJDKInstaller("jdk8u345-b01");
+        installer = new AdoptOpenJDKInstaller("jdk-25.0.3+9");
         testJdk = new JDK(
-                "jdk8u345",
+                "jdk-25.0.3+9",
                 null,
                 Collections.singletonList(
                         new InstallSourceProperty(Collections.<ToolInstaller>singletonList(installer))));
@@ -125,8 +125,8 @@ class AdoptOpenJDKInstallerTest {
         jenkinsRule.assertLogNotContains(cacheDir.getRemote(), freeStyleBuild2);
 
         // delete installation on agent
-        FilePath jdkInstallation =
-                Objects.requireNonNull(agent.getRootPath()).child("tools/hudson.model.JDK/" + testJdk.getName());
+        FilePath jdkInstallation = Objects.requireNonNull(agent.getRootPath())
+                .child("tools/hudson.model.JDK/" + testJdk.getName().replace('+', '_'));
         assertTrue(jdkInstallation.exists());
         jdkInstallation.deleteRecursive();
         assertFalse(jdkInstallation.exists());
