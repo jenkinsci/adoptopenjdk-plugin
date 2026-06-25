@@ -24,7 +24,7 @@ JDKs for the following operating systems can be provided
 - ´AIX´
 - ´Alpine-linux´
 
-Beware that not each possible combination of CPU architectures and operating system is supported.
+Some combinations of CPU architectures and operating systems may not be supported.
 
 ## Supported CPU architectures
 
@@ -39,11 +39,11 @@ JDKs for the following CPU architectures can be provided
 - `sparcv9`
 - `riscv64`
 
-Beware that not each possible combination of CPU architectures and operating system is supported.
+Some combinations of CPU architectures and operating systems may not be supported.
 
 *NOTE*:
 In release `166.v7b_215d91b_68f` and before the architectures `arm` and `aarch64` as well as `ppc64` and `ppc64le` were incorrectly combined.
-This may have led to situations where the wrong one of the two architectures was installed, but is now corrected.
+This may have resulted in situations where a JDK was installed for the wrong architecture. This issue has now been corrected.
 
 ## Configure plugin with [Configuration as Code](https://plugins.jenkins.io/configuration-as-code/)
 
