@@ -36,6 +36,7 @@
                 <select class="jenkins-select__input" name="_.id">
                     <j:forEach var="family" items="${jdks}">
                         <optgroup label="${family.name}">
+                            <f:option value="${family.latestRelease}" selected="${instance.id == family.latestRelease}">Latest JDK ${family.feature_version} release</f:option>
                             <j:forEach var="jdk" items="${family.releases}">
                                 <f:option value="${jdk.release_name}" selected="${jdk.matchesId(instance.id)}">${jdk.release_name}</f:option>
                             </j:forEach>
