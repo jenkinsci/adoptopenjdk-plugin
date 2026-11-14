@@ -39,7 +39,10 @@ import hudson.tools.ToolInstallation;
 import hudson.tools.ToolInstaller;
 import hudson.tools.ToolInstallerDescriptor;
 import hudson.tools.ZipExtractionInstaller;
+import hudson.util.DirScanner;
+import hudson.util.FileVisitor;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -123,19 +126,16 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
             }
             File cache = getLocalCacheFile(p, c);
             if (!DISABLE_CACHE && cache.exists()) {
-                try (InputStream in = cache.toURI().toURL().openStream()) {
+                try (InputStream in = new FileInputStream(cache)) {
                     CountingInputStream cis = new CountingInputStream(in);
                     try {
                         log.getLogger()
                                 .println(Messages.AdoptOpenJDKInstaller_performInstallation_fromCache(
                                         cache, expected, node.getDisplayName()));
-                        // the zip contains already the directory so we unzip to parent directory
-                        FilePath parent = expected.getParent();
-                        if (parent != null) {
-                            parent.unzipFrom(cis);
-                        } else {
-                            throw new NullPointerException("Parent directory of " + expected + " is null");
-                        }
+                        // the zip contains already the content of the directory
+                        expected.unzipFrom(cis);
+                        // Still handle old cached archives, which have an extra top-level entry
+                        pullUpTopLevelContent(expected, expected, p);
                     } catch (IOException e) {
                         throw new IOException(
                                 Messages.AdoptOpenJDKInstaller_performInstallation_failedToUnpack(
@@ -148,10 +148,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
                 ZipExtractionInstaller zipExtractionInstaller = new ZipExtractionInstaller(null, url, null);
                 FilePath installation = zipExtractionInstaller.performInstallation(tool, node, log);
                 installation.child(".timestamp").delete(); // we don't use the timestamp
-                FilePath base = findPullUpDirectory(installation, p);
-                if (base != null && base != expected) {
-                    base.moveAllChildrenTo(expected);
-                }
+                pullUpTopLevelContent(installation, expected, p);
                 marker.write(id, null);
                 if (!DISABLE_CACHE) {
                     // update the local cache on master
@@ -163,7 +160,8 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
                             Files.createDirectories(tmpParent);
                         }
                         try (OutputStream out = Files.newOutputStream(tmp)) {
-                            expected.zip(out);
+                            // Add the JDK directory content directly as top-level entries
+                            expected.zip(out, new DirectContentScanner());
                         }
                         Files.move(tmp, cache.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     } finally {
@@ -181,6 +179,14 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
     private File getLocalCacheFile(Platform platform, CPU cpu) {
         // we force .zip file
         return new File(Jenkins.get().getRootDir(), "caches/adoptopenjdk/" + platform + "/" + cpu + "/" + id + ".zip");
+    }
+
+    private void pullUpTopLevelContent(FilePath actual, FilePath expected, Platform p)
+            throws IOException, InterruptedException {
+        FilePath base = findPullUpDirectory(actual, p);
+        if (base != null && !base.equals(expected)) {
+            base.moveAllChildrenTo(expected);
+        }
     }
 
     /**
@@ -209,7 +215,7 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
     protected FilePath findPullUpDirectory(FilePath root, Platform platform) throws IOException, InterruptedException {
         // if the directory just contains one directory and that alone, assume that's the pull up subject
         // otherwise leave it as is.
-        List<FilePath> children = root.listDirectories();
+        List<FilePath> children = root.list();
         if (children.size() != 1) return null;
 
         // Since the MacOS tar.gz file uses a different layout we need to handle this platform differently
@@ -219,6 +225,24 @@ public class AdoptOpenJDKInstaller extends ToolInstaller {
             if (contents.exists() && contents.isDirectory()) return contents;
         }
         return children.get(0);
+    }
+
+    /**
+     * Scans everything recursively within the root file, skipping the root file
+     * itself.
+     */
+    private static class DirectContentScanner extends DirScanner.Full implements Serializable {
+        private static final long serialVersionUID = 6764181784635321066L;
+
+        @Override
+        public void scan(File rootDir, FileVisitor visitor) throws IOException {
+            File[] content = rootDir.listFiles();
+            if (content != null) {
+                for (File file : content) {
+                    super.scan(file, visitor);
+                }
+            }
+        }
     }
 
     private record Configuration(Platform platform, CPU cpu) implements Serializable {
